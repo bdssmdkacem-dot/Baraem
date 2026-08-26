@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../activities/activity_definitions.dart';
+import '../activities/activity_provider.dart';
 import '../data/adkar_data.dart';
 import '../models/adkar_item.dart';
 import '../providers/audio_provider.dart';
-import '../providers/character_provider.dart';
 import '../providers/progress_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/premium_sheet.dart';
@@ -24,6 +25,13 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ActivityProvider>().start(
+              adhkarActivity('adhkar', 'أذكاري'),
+            );
+      }
+    });
   }
 
   @override
@@ -36,20 +44,15 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
     final progress = context.read<ProgressProvider>();
     if (progress.isCompleted(item.id)) return;
 
-    final character = context.read<CharacterProvider>();
-    character.onActivityCompleted();
-    await progress.markCompleted(item.id);
-    if (!context.mounted) return;
+    final activity = adhkarActivity(item.id, item.arabicText);
+    final result = await context.read<ActivityProvider>().complete(activity);
+    if (!context.mounted || !result.completed) return;
 
     setState(() => _completedActivity = true);
-    character.onStarEarned();
-
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => StarRewardOverlay(
-        onDone: () => Navigator.of(context).pop(),
-      ),
+      builder: (_) => StarRewardOverlay(onDone: () => Navigator.of(context).pop()),
     );
   }
 
@@ -59,7 +62,9 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
       canPop: true,
       onPopInvokedWithResult: (_, __) {
         if (!_completedActivity && mounted) {
-          context.read<CharacterProvider>().onActivityMissed();
+          context.read<ActivityProvider>().miss(
+                adhkarActivity('adhkar', 'أذكاري'),
+              );
         }
       },
       child: Directionality(
@@ -70,10 +75,7 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
             bottom: TabBar(
               controller: _tabController,
               labelColor: AppColors.primaryMint,
-              tabs: const [
-                Tab(text: 'المساء'),
-                Tab(text: 'الصباح'),
-              ],
+              tabs: const [Tab(text: 'المساء'), Tab(text: 'الصباح')],
             ),
           ),
           body: TabBarView(
@@ -115,15 +117,7 @@ class _AdkarList extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  item.arabicText,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: locked ? AppColors.locked : AppColors.textDark,
-                  ),
-                ),
+                Text(item.arabicText, textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: locked ? AppColors.locked : AppColors.textDark)),
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -137,9 +131,7 @@ class _AdkarList extends StatelessWidget {
                     IconButton.filled(
                       onPressed: locked ? null : () => onComplete(context, item),
                       icon: Icon(done ? Icons.check_circle_rounded : Icons.star_border_rounded),
-                      style: IconButton.styleFrom(
-                        backgroundColor: done ? AppColors.success : AppColors.primaryGold,
-                      ),
+                      style: IconButton.styleFrom(backgroundColor: done ? AppColors.success : AppColors.primaryGold),
                     ),
                   ],
                 ),
