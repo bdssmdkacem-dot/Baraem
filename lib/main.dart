@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'activities/activity_provider.dart';
 import 'core/app_error_handler.dart';
 import 'providers/app_state_provider.dart';
 import 'providers/audio_provider.dart';
@@ -35,6 +36,12 @@ Future<void> main() async {
           ChangeNotifierProvider.value(value: progressProvider),
           ChangeNotifierProvider.value(value: characterProvider),
           ChangeNotifierProvider.value(value: purchaseProvider),
+          ChangeNotifierProvider(
+            create: (_) => ActivityProvider(
+              progress: progressProvider,
+              character: characterProvider,
+            ),
+          ),
           ChangeNotifierProvider(create: (_) => AudioProvider()),
         ],
         child: const BaraemApp(),
