@@ -12,6 +12,7 @@ class AudioProvider extends ChangeNotifier {
   String? _currentAsset;
   bool isPlaying = false;
   bool isMuted = false;
+  String? lastError;
 
   AudioProvider() {
     _completeSubscription = _player.onPlayerComplete.listen((_) {
@@ -24,18 +25,27 @@ class AudioProvider extends ChangeNotifier {
   String? get currentAsset => _currentAsset;
 
   Future<void> playAsset(String assetPath) async {
-    if (isMuted) return;
+    if (isMuted || assetPath.trim().isEmpty) return;
 
+    lastError = null;
     if (_currentAsset == assetPath && isPlaying) {
       await stop();
       return;
     }
 
-    await _player.stop();
-    _currentAsset = assetPath;
-    await _player.play(AssetSource(assetPath));
-    isPlaying = true;
-    notifyListeners();
+    try {
+      await _player.stop();
+      _currentAsset = assetPath;
+      await _player.play(AssetSource(assetPath));
+      isPlaying = true;
+      notifyListeners();
+    } catch (error, stackTrace) {
+      _currentAsset = null;
+      isPlaying = false;
+      lastError = error.toString();
+      debugPrint('Baraem audio error: $error\n$stackTrace');
+      notifyListeners();
+    }
   }
 
   Future<void> toggleMute() async {
@@ -47,7 +57,12 @@ class AudioProvider extends ChangeNotifier {
   }
 
   Future<void> stop() async {
-    await _player.stop();
+    try {
+      await _player.stop();
+    } catch (error) {
+      lastError = error.toString();
+      debugPrint('Baraem audio stop error: $error');
+    }
     isPlaying = false;
     _currentAsset = null;
     notifyListeners();
@@ -56,7 +71,7 @@ class AudioProvider extends ChangeNotifier {
   @override
   void dispose() {
     _completeSubscription?.cancel();
-    _player.dispose();
+    unawaited(_player.dispose());
     super.dispose();
   }
 }
