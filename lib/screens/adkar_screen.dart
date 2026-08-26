@@ -25,13 +25,6 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<ActivityProvider>().start(
-              adhkarActivity('adhkar', 'أذكاري'),
-            );
-      }
-    });
   }
 
   @override
@@ -45,7 +38,9 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
     if (progress.isCompleted(item.id)) return;
 
     final activity = adhkarActivity(item.id, item.arabicText);
-    final result = await context.read<ActivityProvider>().complete(activity);
+    final activities = context.read<ActivityProvider>();
+    activities.start(activity);
+    final result = await activities.complete(activity);
     if (!context.mounted || !result.completed) return;
 
     setState(() => _completedActivity = true);
