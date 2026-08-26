@@ -7,6 +7,7 @@ import '../activities/next_activity_selector.dart';
 import '../data/adab_scenarios_data.dart';
 import '../models/adab_scenario.dart';
 import '../providers/progress_provider.dart';
+import '../theme/app_colors.dart';
 import '../widgets/mascot_widget.dart';
 import '../widgets/premium_sheet.dart';
 import '../widgets/star_reward_overlay.dart';
