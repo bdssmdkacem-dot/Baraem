@@ -9,6 +9,8 @@ import '../providers/progress_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/baraem_character.dart';
 import '../widgets/daily_activity_card.dart';
+import '../widgets/daily_progress_card.dart';
+import '../widgets/encouragement_card.dart';
 import '../widgets/home_header.dart';
 import '../widgets/module_card.dart';
 import '../widgets/streak_row.dart';
@@ -42,6 +44,10 @@ class HomeScreen extends StatelessWidget {
                   HomeHeader(stars: progress.stars),
                   const SizedBox(height: 20),
                   const BaraemCharacter(),
+                  const SizedBox(height: 16),
+                  DailyProgressCard(completed: progress.dailyCompletedCount),
+                  const SizedBox(height: 12),
+                  EncouragementCard(completed: progress.dailyCompletedCount),
                   const SizedBox(height: 16),
                   Semantics(
                     container: true,
