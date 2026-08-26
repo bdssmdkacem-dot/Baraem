@@ -10,12 +10,15 @@ class ProgressProvider extends ChangeNotifier {
   static const _kStreak = 'baraem_streak';
   static const _kLastActiveDay = 'baraem_last_active_day';
   static const _kCompletedIds = 'baraem_completed_ids';
+  static const _kCompletedTodayIds = 'baraem_completed_today_ids';
+  static const _kCompletedTodayDate = 'baraem_completed_today_date';
   static const _kIsPremium = 'baraem_is_premium';
 
   int stars = 0;
   int streakDays = 0;
   DateTime? lastActiveDay;
   Set<String> completedIds = {};
+  Set<String> completedTodayIds = {};
   bool isPremium = false;
 
   late SharedPreferences _prefs;
@@ -36,10 +39,33 @@ class ProgressProvider extends ChangeNotifier {
       completedIds = Set<String>.from(jsonDecode(completedRaw) as List);
     }
 
+    _loadTodayCompletions();
     _loaded = true;
     _updateStreakOnOpen();
     notifyListeners();
   }
+
+  void _loadTodayCompletions() {
+    final storedDate = _prefs.getString(_kCompletedTodayDate);
+    final today = _dayKey(DateTime.now());
+    final raw = _prefs.getString(_kCompletedTodayIds);
+
+    if (storedDate != today || raw == null) {
+      completedTodayIds = {};
+      _prefs.setString(_kCompletedTodayDate, today);
+      _prefs.setString(_kCompletedTodayIds, jsonEncode(<String>[]));
+      return;
+    }
+
+    try {
+      completedTodayIds = Set<String>.from(jsonDecode(raw) as List);
+    } catch (_) {
+      completedTodayIds = {};
+    }
+  }
+
+  String _dayKey(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   /// Appelé à l'ouverture de l'app : incrémente le streak si c'est un
   /// nouveau jour consécutif, le remet à zéro si un jour a été sauté.
@@ -73,13 +99,18 @@ class ProgressProvider extends ChangeNotifier {
   Future<void> markCompleted(String itemId, {int starsAwarded = 1}) async {
     if (completedIds.contains(itemId)) return;
     completedIds.add(itemId);
+    completedTodayIds.add(itemId);
     stars += starsAwarded;
     await _prefs.setInt(_kStars, stars);
     await _prefs.setString(_kCompletedIds, jsonEncode(completedIds.toList()));
+    await _prefs.setString(_kCompletedTodayDate, _dayKey(DateTime.now()));
+    await _prefs.setString(_kCompletedTodayIds, jsonEncode(completedTodayIds.toList()));
     notifyListeners();
   }
 
   bool isCompleted(String itemId) => completedIds.contains(itemId);
+
+  int get dailyCompletedCount => completedTodayIds.length;
 
   Future<void> setPremium(bool value) async {
     isPremium = value;
