@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../activities/activity_definitions.dart';
 import '../activities/activity_provider.dart';
+import '../activities/next_activity_selector.dart';
+import '../data/stories_data.dart';
 import '../models/story_item.dart';
 import '../providers/audio_provider.dart';
+import '../providers/progress_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/star_reward_overlay.dart';
 
@@ -61,11 +64,37 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => StarRewardOverlay(
-        onDone: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
-        },
+        onDone: _continueToNextActivity,
       ),
+    );
+  }
+
+  void _continueToNextActivity() {
+    if (!mounted) return;
+    final progress = context.read<ProgressProvider>();
+    final eligibleStories = stories
+        .where((story) => !story.isPremium || progress.isPremium)
+        .toList(growable: false);
+    final activities = eligibleStories
+        .map((story) => storyActivity(story.id, story.title))
+        .toList(growable: false);
+    final next = const NextActivitySelector().select(
+      activities: activities,
+      completedIds: progress.completedIds,
+      currentActivityId: widget.story.id,
+    );
+
+    Navigator.of(context).pop();
+    if (next == null) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    final nextStory = eligibleStories.firstWhere(
+      (story) => story.id == next.id,
+    );
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => StoryDetailScreen(story: nextStory)),
     );
   }
 
