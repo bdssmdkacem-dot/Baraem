@@ -20,8 +20,19 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   int _currentPage = 0;
   int? _selectedQuizOption;
   bool _completedActivity = false;
+  bool _activityStarted = false;
 
   bool get _isLastPage => _currentPage == widget.story.pages.length - 1;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_activityStarted) return;
+    _activityStarted = true;
+    context.read<ActivityProvider>().start(
+      storyActivity(widget.story.id, widget.story.title),
+    );
+  }
 
   Future<void> _next() async {
     if (_currentPage < widget.story.pages.length - 1) {
