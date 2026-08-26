@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
 
 class ModuleCard extends StatelessWidget {
   final String title;
@@ -31,7 +30,7 @@ class ModuleCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: color.withValues(alpha: 0.35),
+                color: color.withOpacity(0.35),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),
@@ -44,7 +43,7 @@ class ModuleCard extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.25),
+                  color: Colors.white.withOpacity(0.25),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: Colors.white, size: 30),
@@ -69,7 +68,7 @@ class ModuleCard extends StatelessWidget {
                       textDirection: TextDirection.rtl,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withOpacity(0.9),
                       ),
                     ),
                   ],
