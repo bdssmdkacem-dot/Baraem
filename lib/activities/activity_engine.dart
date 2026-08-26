@@ -1,4 +1,3 @@
-import '../character/character_state.dart';
 import '../providers/character_provider.dart';
 import '../providers/progress_provider.dart';
 import 'activity_models.dart';
