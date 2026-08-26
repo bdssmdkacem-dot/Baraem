@@ -2,14 +2,12 @@ name: Build Baraem APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,28 +19,19 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Create Android project
+      - name: Restore Android project
         run: |
-          if [ ! -d "android" ]; then
-            flutter create \
-              --platforms=android \
-              --org com.baraem \
-              --project-name baraem \
-              --no-pub \
-              .
+          set -e
+          if [ ! -d "android/app" ]; then
+            flutter create --platforms=android --org com.baraem --project-name baraem --no-pub .
           fi
-          test -d android/app
+          test -f android/app/build.gradle || test -f android/app/build.gradle.kts
+          test -f android/settings.gradle || test -f android/settings.gradle.kts
 
       - name: Validate asset directories
         run: |
           set -e
-          for dir in \
-            assets/images/icon \
-            assets/images/mascot \
-            assets/images/stories \
-            assets/images/adab \
-            assets/audio/adkar \
-            assets/audio/stories; do
+          for dir in assets/images/icon assets/images/mascot assets/images/stories assets/images/adab assets/audio/adkar assets/audio/stories; do
             test -d "$dir"
           done
 
