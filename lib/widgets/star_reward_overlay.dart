@@ -3,10 +3,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-/// Petite célébration à afficher (via showDialog ou overlay) quand
-/// l'enfant termine un dhikr / une histoire / un scénario adab.
-/// Volontairement courte et non-intrusive : pas d'écran plein, pas
-/// de minuteur, pas de pression - juste un feedback positif rapide.
+/// Short, positive celebration shown after completing an activity.
 class StarRewardOverlay extends StatefulWidget {
   final VoidCallback onDone;
 
@@ -56,7 +53,7 @@ class _StarRewardOverlayState extends State<StarRewardOverlay> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 20),
+              BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 20),
             ],
           ),
           child: Column(
