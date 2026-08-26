@@ -1,77 +1,49 @@
-name: Build Baraem APK/AAB
+name: Build Baraem APK
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
-          channel: 'stable'
+          flutter-version: "3.24.0"
+          channel: stable
+          cache: true
 
-      - run: flutter pub get
-      - run: flutter analyze
-
-      # Release signing is optional until Android signing files/secrets exist.
-      # Never commit a keystore to the repository.
-      - name: Prepare Android signing
-        id: signing
-        shell: bash
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: Create Android project
         run: |
-          set -euo pipefail
-
-          if [[ -z "${KEYSTORE_BASE64}" ]]; then
-            echo "Signing secrets are not configured; building unsigned release artifacts."
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            exit 0
+          if [ ! -d "android" ]; then
+            flutter create \
+              --platforms=android \
+              --org com.baraem \
+              --project-name baraem \
+              .
           fi
 
-          if [[ ! -d android/app ]]; then
-            echo "ERROR: android/app does not exist in this repository."
-            echo "This is an Android project structure issue, not a keystore issue."
-            exit 1
-          fi
+          test -d android/app
 
-          printf '%s' "${KEYSTORE_BASE64}" | base64 --decode > android/app/keystore.jks
+      - name: Get dependencies
+        run: flutter pub get
 
-          cat > android/key.properties <<EOF
-          storePassword=${KEYSTORE_PASSWORD}
-          keyPassword=${KEY_PASSWORD}
-          keyAlias=${KEY_ALIAS}
-          storeFile=keystore.jks
-          EOF
+      - name: Analyze
+        run: flutter analyze
 
-          echo "enabled=true" >> "$GITHUB_OUTPUT"
-
-      - name: Build release AAB
-        if: steps.signing.outputs.enabled == 'true'
-        run: flutter build appbundle --release
-
-      - name: Build release APK
-        if: steps.signing.outputs.enabled == 'true'
-        run: flutter build apk --release
-
-      - name: Build debug APK fallback
-        if: steps.signing.outputs.enabled != 'true'
+      - name: Build Debug APK
         run: flutter build apk --debug
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: baraem-release
-          path: |
-            build/app/outputs/bundle/release/app-release.aab
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: ignore
+          name: baraem-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
