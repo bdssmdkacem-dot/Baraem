@@ -42,8 +42,8 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       barrierDismissible: false,
       builder: (_) => StarRewardOverlay(
         onDone: () {
-          Navigator.of(context).pop(); // ferme le dialog
-          Navigator.of(context).pop(); // retourne à la grille
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
         },
       ),
     );
@@ -81,8 +81,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                               ),
                               alignment: Alignment.center,
                               child: const Icon(Icons.image_rounded, size: 64, color: AppColors.locked),
-                              // Remplacer par Image.asset(page.imageAsset) une fois les
-                              // illustrations prêtes.
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -143,7 +141,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                 },
                 style: OutlinedButton.styleFrom(
                   backgroundColor: selected
-                      ? (isCorrect ? AppColors.success : AppColors.primaryCoral.withValues(alpha: 0.2))
+                      ? (isCorrect ? AppColors.success : AppColors.primaryCoral.withOpacity(0.2))
                       : null,
                 ),
                 child: Text(q.options[i]),
