@@ -9,39 +9,23 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.6
-
-  # State management (même pattern que Aqim / Kadd / Sufra)
   provider: ^6.1.2
-
-  # Persistance locale (streak, étoiles, contenu débloqué)
   shared_preferences: ^2.2.3
-
-  # Audio (dhikr, narration des histoires)
   audioplayers: ^6.0.0
-
-  # Polices arabes (Google Fonts, embarquées offline via pubspec)
   google_fonts: ^6.2.1
-
-  # Illustrations vectorielles (mascotte, couvertures d'histoires)
   flutter_svg: ^2.0.10
-
-  # Animations légères (étoiles, confettis de récompense)
   lottie: ^3.1.2
   confetti: ^0.7.0
-
-  # Monétisation freemium
   in_app_purchase: ^3.2.0
-
-  # Ads (optionnel, si tu gardes un bandeau gratuit hors zones premium)
   google_mobile_ads: ^5.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  # Génère les icônes de lanceur Android/iOS depuis assets/icon/app_icon.png
-  # Lance : flutter pub run flutter_launcher_icons
   flutter_launcher_icons: ^0.14.1
 
 flutter_launcher_icons:
@@ -52,6 +36,7 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  generate: true
 
   assets:
     - assets/images/icon/
