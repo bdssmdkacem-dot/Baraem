@@ -33,6 +33,19 @@ jobs:
           fi
           test -d android/app
 
+      - name: Validate asset directories
+        run: |
+          set -e
+          for dir in \
+            assets/images/icon \
+            assets/images/mascot \
+            assets/images/stories \
+            assets/images/adab \
+            assets/audio/adkar \
+            assets/audio/stories; do
+            test -d "$dir"
+          done
+
       - name: Remove generated Flutter test
         run: rm -f test/widget_test.dart
 
