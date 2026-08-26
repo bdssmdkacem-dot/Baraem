@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../activities/activity_definitions.dart';
+import '../activities/activity_models.dart';
 import '../activities/activity_provider.dart';
 import '../core/app_scale.dart';
 import '../providers/progress_provider.dart';
