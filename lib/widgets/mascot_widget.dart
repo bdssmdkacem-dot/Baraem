@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_colors.dart';
 
-/// Bulle mascotte réutilisable. Remplace [imageAsset] par le personnage
-/// choisi (lionceau / lapin / coccinelle) une fois les assets prêts.
+/// Reusable Baraem mascot speech bubble.
 class MascotWidget extends StatelessWidget {
   final String message;
   final String? imageAsset;
@@ -34,7 +33,7 @@ class MascotWidget extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.10),
+                color: Colors.black.withOpacity(0.10),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -59,7 +58,7 @@ class MascotWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
+                  color: Colors.black.withOpacity(0.06),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
