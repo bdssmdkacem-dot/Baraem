@@ -4,7 +4,6 @@ import '../activities/activity_definitions.dart';
 import '../activities/activity_provider.dart';
 import '../models/story_item.dart';
 import '../providers/audio_provider.dart';
-import '../providers/progress_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/star_reward_overlay.dart';
 
