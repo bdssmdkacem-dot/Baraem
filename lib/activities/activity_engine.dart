@@ -12,12 +12,16 @@ class ActivityEngine {
   ActivityStatus get status => _status;
 
   void start(ActivityDefinition activity) {
+    if (progress.isCompleted(activity.id)) {
+      _status = ActivityStatus.completed;
+      return;
+    }
     _status = ActivityStatus.inProgress;
     character.onActivityStarted();
   }
 
   Future<ActivityResult> complete(ActivityDefinition activity) async {
-    if (_status != ActivityStatus.inProgress) {
+    if (_status != ActivityStatus.inProgress || progress.isCompleted(activity.id)) {
       return ActivityResult(activityId: activity.id, completed: false);
     }
 
