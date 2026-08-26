@@ -22,8 +22,19 @@ class _AdabScreenState extends State<AdabScreen> {
   int _currentIndex = 0;
   AdabChoice? _selectedChoice;
   bool _completedActivity = false;
+  bool _activityStarted = false;
 
   AdabScenario get _current => adabScenarios[_currentIndex];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_activityStarted) return;
+    _activityStarted = true;
+    context.read<ActivityProvider>().start(
+      mannersActivity(_current.id, _current.situation),
+    );
+  }
 
   Future<void> _selectChoice(AdabChoice choice) async {
     setState(() => _selectedChoice = choice);
@@ -50,6 +61,9 @@ class _AdabScreenState extends State<AdabScreen> {
       _completedActivity = false;
       _currentIndex = (_currentIndex + 1) % adabScenarios.length;
     });
+    context.read<ActivityProvider>().start(
+      mannersActivity(_current.id, _current.situation),
+    );
   }
 
   @override
