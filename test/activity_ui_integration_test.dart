@@ -32,7 +32,7 @@ void main() {
         child: MaterialApp(home: child),
       );
 
-  testWidgets('آدابي completes and shows star reward', (tester) async {
+  testWidgets('آدابي completes, rewards, then opens the next activity', (tester) async {
     final s = await scope();
     addTearDown(s.dispose);
     s.activity.start(mannersActivity('adab_eating', 'آداب الطعام'));
@@ -55,7 +55,11 @@ void main() {
 
     await tester.tap(find.text('متابعة'));
     await tester.pumpAndSettle();
+
     expect(find.text('أحسنت! 🎉'), findsNothing);
+    expect(find.text('قابلت صديقك في الحديقة، ماذا تقول له؟'), findsOneWidget);
+    expect(s.progress.stars, 1);
+    expect(s.progress.isCompleted('adab_eating'), isTrue);
   });
 
   testWidgets('قصص الأنبياء advances pages and completes quiz', (tester) async {
