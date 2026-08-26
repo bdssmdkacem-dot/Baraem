@@ -32,15 +32,15 @@ class _FriendlyErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return const Material(
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 Icon(Icons.sentiment_dissatisfied_rounded, size: 56),
                 SizedBox(height: 12),
                 Text(
