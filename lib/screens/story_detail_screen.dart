@@ -29,9 +29,12 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     super.didChangeDependencies();
     if (_activityStarted) return;
     _activityStarted = true;
-    context.read<ActivityProvider>().start(
-      storyActivity(widget.story.id, widget.story.title),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ActivityProvider>().start(
+        storyActivity(widget.story.id, widget.story.title),
+      );
+    });
   }
 
   Future<void> _next() async {
