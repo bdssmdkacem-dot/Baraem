@@ -16,6 +16,7 @@ class AppStateProvider extends ChangeNotifier {
 
   Future<void> load() async {
     _storage = await StorageService.getInstance();
+    await _storage!.migrateIfNeeded();
     onboardingComplete = _storage!.getBool(_kOnboardingComplete);
     soundEnabled = _storage!.getBool(_kSoundEnabled, defaultValue: true);
     musicEnabled = _storage!.getBool(_kMusicEnabled, defaultValue: true);
