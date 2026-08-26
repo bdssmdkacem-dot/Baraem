@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../character/character_state.dart';
 import '../core/app_scale.dart';
 import '../providers/character_provider.dart';
 import '../providers/progress_provider.dart';
