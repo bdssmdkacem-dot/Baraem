@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../character/character_state.dart';
 import '../data/adkar_data.dart';
 import '../models/adkar_item.dart';
 import '../providers/audio_provider.dart';
@@ -52,13 +51,6 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
         onDone: () => Navigator.of(context).pop(),
       ),
     );
-  }
-
-  Future<bool> _handleExit() async {
-    if (!_completedActivity && mounted) {
-      context.read<CharacterProvider>().onActivityMissed();
-    }
-    return true;
   }
 
   @override
