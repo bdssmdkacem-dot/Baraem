@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_scale.dart';
+import '../theme/app_colors.dart';
 import 'star_counter.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -26,7 +27,7 @@ class HomeHeader extends StatelessWidget {
                 'ماذا سنتعلم اليوم؟',
                 style: TextStyle(
                   fontSize: 14 * scale,
-                  color: Colors.grey,
+                  color: AppColors.textMuted,
                   fontWeight: FontWeight.w600,
                 ),
               ),
