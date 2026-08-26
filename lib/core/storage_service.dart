@@ -19,7 +19,6 @@ class StorageService {
     );
   }
 
-  @visibleForTesting
   static void resetForTesting() {
     _instance = null;
   }
