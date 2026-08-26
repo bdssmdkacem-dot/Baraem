@@ -3,16 +3,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../activities/activity_definitions.dart';
 import '../activities/activity_provider.dart';
+import '../activities/next_activity_selector.dart';
 import '../data/adab_scenarios_data.dart';
 import '../models/adab_scenario.dart';
 import '../providers/progress_provider.dart';
-import '../theme/app_colors.dart';
 import '../widgets/mascot_widget.dart';
 import '../widgets/premium_sheet.dart';
 import '../widgets/star_reward_overlay.dart';
 
 class AdabScreen extends StatefulWidget {
-  const AdabScreen({super.key});
+  final String? initialScenarioId;
+
+  const AdabScreen({super.key, this.initialScenarioId});
 
   @override
   State<AdabScreen> createState() => _AdabScreenState();
@@ -25,6 +27,16 @@ class _AdabScreenState extends State<AdabScreen> {
   bool _activityStarted = false;
 
   AdabScenario get _current => adabScenarios[_currentIndex];
+
+  @override
+  void initState() {
+    super.initState();
+    final initialId = widget.initialScenarioId;
+    if (initialId != null) {
+      final index = adabScenarios.indexWhere((scenario) => scenario.id == initialId);
+      if (index >= 0) _currentIndex = index;
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -53,16 +65,37 @@ class _AdabScreenState extends State<AdabScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => StarRewardOverlay(
-        onDone: () => Navigator.of(context).pop(),
+        onDone: _continueToNextActivity,
       ),
     );
   }
 
+  void _continueToNextActivity() {
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    _nextScenario();
+  }
+
   void _nextScenario() {
+    final progress = context.read<ProgressProvider>();
+    final activities = adabScenarios
+        .map((scenario) => mannersActivity(scenario.id, scenario.situation))
+        .toList(growable: false);
+    final next = const NextActivitySelector().select(
+      activities: activities,
+      completedIds: progress.completedIds,
+      currentActivityId: _current.id,
+    );
+
+    if (next == null) return;
+
+    final nextIndex = adabScenarios.indexWhere((scenario) => scenario.id == next.id);
+    if (nextIndex < 0) return;
+
     setState(() {
+      _currentIndex = nextIndex;
       _selectedChoice = null;
       _completedActivity = false;
-      _currentIndex = (_currentIndex + 1) % adabScenarios.length;
     });
     context.read<ActivityProvider>().start(
       mannersActivity(_current.id, _current.situation),
