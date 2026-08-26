@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../character/character_state.dart';
 import '../data/adkar_data.dart';
 import '../models/adkar_item.dart';
 import '../providers/audio_provider.dart';
+import '../providers/character_provider.dart';
 import '../providers/progress_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/premium_sheet.dart';
@@ -17,6 +19,7 @@ class AdkarScreen extends StatefulWidget {
 
 class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  bool _completedActivity = false;
 
   @override
   void initState() {
@@ -30,12 +33,17 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  void _handleComplete(BuildContext context, AdkarItem item) async {
+  Future<void> _handleComplete(BuildContext context, AdkarItem item) async {
     final progress = context.read<ProgressProvider>();
     if (progress.isCompleted(item.id)) return;
 
+    final character = context.read<CharacterProvider>();
+    character.onActivityCompleted();
     await progress.markCompleted(item.id);
     if (!context.mounted) return;
+
+    setState(() => _completedActivity = true);
+    character.onStarEarned();
 
     showDialog(
       context: context,
@@ -46,28 +54,43 @@ class _AdkarScreenState extends State<AdkarScreen> with SingleTickerProviderStat
     );
   }
 
+  Future<bool> _handleExit() async {
+    if (!_completedActivity && mounted) {
+      context.read<CharacterProvider>().onActivityMissed();
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('أذكاري'),
-          bottom: TabBar(
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (_, __) {
+        if (!_completedActivity && mounted) {
+          context.read<CharacterProvider>().onActivityMissed();
+        }
+      },
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('أذكاري'),
+            bottom: TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primaryMint,
+              tabs: const [
+                Tab(text: 'المساء'),
+                Tab(text: 'الصباح'),
+              ],
+            ),
+          ),
+          body: TabBarView(
             controller: _tabController,
-            labelColor: AppColors.primaryMint,
-            tabs: const [
-              Tab(text: 'المساء'),
-              Tab(text: 'الصباح'),
+            children: [
+              _AdkarList(items: eveningAdkar, onComplete: _handleComplete),
+              _AdkarList(items: morningAdkar, onComplete: _handleComplete),
             ],
           ),
-        ),
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            _AdkarList(items: eveningAdkar, onComplete: _handleComplete),
-            _AdkarList(items: morningAdkar, onComplete: _handleComplete),
-          ],
         ),
       ),
     );
