@@ -28,16 +28,22 @@ jobs:
               --platforms=android \
               --org com.baraem \
               --project-name baraem \
+              --no-pub \
               .
           fi
-
           test -d android/app
+
+      - name: Remove generated Flutter test
+        run: rm -f test/widget_test.dart
 
       - name: Get dependencies
         run: flutter pub get
 
       - name: Analyze
         run: flutter analyze
+
+      - name: Test
+        run: flutter test
 
       - name: Build Debug APK
         run: flutter build apk --debug
