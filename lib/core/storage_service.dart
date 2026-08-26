@@ -20,17 +20,18 @@ class StorageService {
   bool getBool(String key, {bool defaultValue = false}) =>
       _prefs.getBool(key) ?? defaultValue;
 
-  Future<int> setInt(String key, int value) => _prefs.setInt(key, value);
+  Future<bool> setInt(String key, int value) => _prefs.setInt(key, value);
   int getInt(String key, {int defaultValue = 0}) =>
       _prefs.getInt(key) ?? defaultValue;
 
-  Future<String> setString(String key, String value) =>
+  Future<bool> setString(String key, String value) =>
       _prefs.setString(key, value);
   String? getString(String key) => _prefs.getString(key);
 
   Future<bool> setStringList(String key, List<String> value) =>
       _prefs.setStringList(key, value);
-  List<String> getStringList(String key) => _prefs.getStringList(key) ?? const [];
+  List<String> getStringList(String key) =>
+      _prefs.getStringList(key) ?? const [];
 
   Future<bool> setJson(String key, Object value) =>
       _prefs.setString(key, jsonEncode(value));
