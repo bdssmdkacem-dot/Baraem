@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../activities/activity_definitions.dart';
+import '../activities/activity_provider.dart';
 import '../data/adab_scenarios_data.dart';
 import '../models/adab_scenario.dart';
 import '../providers/progress_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/mascot_widget.dart';
 import '../widgets/premium_sheet.dart';
+import '../widgets/star_reward_overlay.dart';
 
 class AdabScreen extends StatefulWidget {
   const AdabScreen({super.key});
@@ -18,19 +21,33 @@ class AdabScreen extends StatefulWidget {
 class _AdabScreenState extends State<AdabScreen> {
   int _currentIndex = 0;
   AdabChoice? _selectedChoice;
+  bool _completedActivity = false;
 
   AdabScenario get _current => adabScenarios[_currentIndex];
 
-  void _selectChoice(AdabChoice choice) async {
+  Future<void> _selectChoice(AdabChoice choice) async {
     setState(() => _selectedChoice = choice);
-    if (choice.isCorrect) {
-      await context.read<ProgressProvider>().markCompleted(_current.id);
-    }
+    if (!choice.isCorrect) return;
+
+    final result = await context.read<ActivityProvider>().complete(
+      mannersActivity(_current.id, _current.situation),
+    );
+    if (!mounted || !result.completed) return;
+
+    setState(() => _completedActivity = true);
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => StarRewardOverlay(
+        onDone: () => Navigator.of(context).pop(),
+      ),
+    );
   }
 
   void _nextScenario() {
     setState(() {
       _selectedChoice = null;
+      _completedActivity = false;
       _currentIndex = (_currentIndex + 1) % adabScenarios.length;
     });
   }
@@ -40,82 +57,92 @@ class _AdabScreenState extends State<AdabScreen> {
     final progress = context.watch<ProgressProvider>();
     final locked = _current.isPremium && !progress.isPremium;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(title: const Text('آدابي')),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  height: 160,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceAlt,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: SvgPicture.asset(
-                    _current.imageAsset,
-                    fit: BoxFit.cover,
-                    placeholderBuilder: (_) => const Center(
-                      child: Icon(Icons.image_rounded, size: 56, color: AppColors.locked),
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (_, __) {
+        if (!_completedActivity && !locked && _selectedChoice != null) {
+          context.read<ActivityProvider>().miss(
+            mannersActivity(_current.id, _current.situation),
+          );
+        }
+      },
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(title: const Text('آدابي')),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    height: 160,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceAlt,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: SvgPicture.asset(
+                      _current.imageAsset,
+                      fit: BoxFit.cover,
+                      placeholderBuilder: (_) => const Center(
+                        child: Icon(Icons.image_rounded, size: 56, color: AppColors.locked),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                MascotWidget(
-                  message: _current.situation,
-                  imageAsset: 'assets/images/mascot/mascot_lion.svg',
-                ),
-                const SizedBox(height: 20),
-                if (locked)
-                  Column(
-                    children: [
-                      const Text(
-                        '🔒 هذا السيناريو ضمن المحتوى المميز',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () => PremiumSheet.show(context),
-                        child: const Text('فتح المحتوى المميز'),
-                      ),
-                    ],
-                  )
-                else
-                  ..._current.choices.map((choice) {
-                    final isSelected = _selectedChoice == choice;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: ElevatedButton(
-                        onPressed: _selectedChoice == null ? () => _selectChoice(choice) : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isSelected
-                              ? (choice.isCorrect ? AppColors.success : AppColors.primaryCoral)
-                              : AppColors.primarySky,
+                  const SizedBox(height: 20),
+                  MascotWidget(
+                    message: _current.situation,
+                    imageAsset: 'assets/images/mascot/mascot_lion.svg',
+                  ),
+                  const SizedBox(height: 20),
+                  if (locked)
+                    Column(
+                      children: [
+                        const Text(
+                          '🔒 هذا السيناريو ضمن المحتوى المميز',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w600),
                         ),
-                        child: Text(choice.label),
-                      ),
-                    );
-                  }),
-                if (_selectedChoice != null) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    _selectedChoice!.feedback,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: _nextScenario,
-                    child: const Text('التالي ⟵'),
-                  ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () => PremiumSheet.show(context),
+                          child: const Text('فتح المحتوى المميز'),
+                        ),
+                      ],
+                    )
+                  else
+                    ..._current.choices.map((choice) {
+                      final isSelected = _selectedChoice == choice;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: ElevatedButton(
+                          onPressed: _selectedChoice == null ? () => _selectChoice(choice) : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isSelected
+                                ? (choice.isCorrect ? AppColors.success : AppColors.primaryCoral)
+                                : AppColors.primarySky,
+                          ),
+                          child: Text(choice.label),
+                        ),
+                      );
+                    }),
+                  if (_selectedChoice != null) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      _selectedChoice!.feedback,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: _nextScenario,
+                      child: const Text('التالي ⟵'),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
