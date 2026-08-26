@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../activities/activity_definitions.dart';
+import '../activities/activity_provider.dart';
 import '../core/app_scale.dart';
-import '../providers/character_provider.dart';
 import '../providers/progress_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/baraem_character.dart';
@@ -16,6 +17,11 @@ import 'stories_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  void _openActivity(BuildContext context, ActivityDefinition activity, Widget screen) {
+    context.read<ActivityProvider>().start(activity);
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +58,11 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 22),
                   DailyActivityCard(
-                    onStart: () {
-                      context.read<CharacterProvider>().onActivityStarted();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const AdkarScreen()),
-                      );
-                    },
+                    onStart: () => _openActivity(
+                      context,
+                      adhkarActivity('daily_adhkar', 'ذكر اليوم'),
+                      const AdkarScreen(),
+                    ),
                   ),
                   const SizedBox(height: 24),
                   const Text(
@@ -71,12 +76,11 @@ class HomeScreen extends StatelessWidget {
                     subtitle: 'أذكار الصباح والمساء',
                     icon: Icons.wb_sunny_rounded,
                     color: AppColors.primaryMint,
-                    onTap: () {
-                      context.read<CharacterProvider>().onActivityStarted();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const AdkarScreen()),
-                      );
-                    },
+                    onTap: () => _openActivity(
+                      context,
+                      adhkarActivity('adhkar', 'أذكاري'),
+                      const AdkarScreen(),
+                    ),
                   ),
                   const SizedBox(height: 14),
                   ModuleCard(
@@ -84,12 +88,11 @@ class HomeScreen extends StatelessWidget {
                     subtitle: 'حكايات جميلة ومفيدة',
                     icon: Icons.auto_stories_rounded,
                     color: AppColors.primaryCoral,
-                    onTap: () {
-                      context.read<CharacterProvider>().onActivityStarted();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const StoriesScreen()),
-                      );
-                    },
+                    onTap: () => _openActivity(
+                      context,
+                      storyActivity('stories', 'قصص الأنبياء'),
+                      const StoriesScreen(),
+                    ),
                   ),
                   const SizedBox(height: 14),
                   ModuleCard(
@@ -97,12 +100,11 @@ class HomeScreen extends StatelessWidget {
                     subtitle: 'كيف نتصرف بشكل جميل',
                     icon: Icons.favorite_rounded,
                     color: AppColors.primarySky,
-                    onTap: () {
-                      context.read<CharacterProvider>().onActivityStarted();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const AdabScreen()),
-                      );
-                    },
+                    onTap: () => _openActivity(
+                      context,
+                      mannersActivity('manners', 'آدابي'),
+                      const AdabScreen(),
+                    ),
                   ),
                 ],
               ),
