@@ -19,6 +19,11 @@ class StorageService {
     );
   }
 
+  @visibleForTesting
+  static void resetForTesting() {
+    _instance = null;
+  }
+
   int get schemaVersion =>
       _prefs.getInt(_schemaVersionKey) ?? currentSchemaVersion;
 
@@ -64,13 +69,7 @@ class StorageService {
 
   Future<void> migrateIfNeeded() async {
     final stored = _prefs.getInt(_schemaVersionKey);
-    if (stored == null) {
-      await _prefs.setInt(_schemaVersionKey, currentSchemaVersion);
-      return;
-    }
-
-    if (stored < currentSchemaVersion) {
-      // Keep migrations additive and backwards-compatible.
+    if (stored == null || stored < currentSchemaVersion) {
       await _prefs.setInt(_schemaVersionKey, currentSchemaVersion);
     }
   }
