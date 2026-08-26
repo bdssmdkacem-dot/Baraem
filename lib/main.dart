@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'character/character_state.dart';
 import 'core/app_error_handler.dart';
 import 'providers/app_state_provider.dart';
 import 'providers/audio_provider.dart';
+import 'providers/character_provider.dart';
 import 'providers/progress_provider.dart';
 import 'providers/purchase_provider.dart';
 
@@ -21,6 +23,8 @@ Future<void> main() async {
     final progressProvider = ProgressProvider();
     await progressProvider.load();
 
+    final characterProvider = CharacterProvider()..onAppOpened();
+
     final purchaseProvider = PurchaseProvider()
       ..onPremiumChanged = (isPremium) => progressProvider.setPremium(isPremium);
     unawaited(purchaseProvider.init());
@@ -30,6 +34,7 @@ Future<void> main() async {
         providers: [
           ChangeNotifierProvider.value(value: appStateProvider),
           ChangeNotifierProvider.value(value: progressProvider),
+          ChangeNotifierProvider.value(value: characterProvider),
           ChangeNotifierProvider.value(value: purchaseProvider),
           ChangeNotifierProvider(create: (_) => AudioProvider()),
         ],
