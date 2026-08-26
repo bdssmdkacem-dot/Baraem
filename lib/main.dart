@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
-import 'character/character_state.dart';
 import 'core/app_error_handler.dart';
 import 'providers/app_state_provider.dart';
 import 'providers/audio_provider.dart';
