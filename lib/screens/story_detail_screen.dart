@@ -8,9 +8,7 @@ import '../widgets/star_reward_overlay.dart';
 
 class StoryDetailScreen extends StatefulWidget {
   final StoryItem story;
-
   const StoryDetailScreen({super.key, required this.story});
-
   @override
   State<StoryDetailScreen> createState() => _StoryDetailScreenState();
 }
@@ -19,33 +17,23 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   int? _selectedQuizOption;
-
   bool get _isLastPage => _currentPage == widget.story.pages.length - 1;
 
   void _next() {
     if (_currentPage < widget.story.pages.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
     } else if (widget.story.quiz.isEmpty) {
       _finishStory();
     }
   }
 
   void _finishStory() async {
-    final progress = context.read<ProgressProvider>();
-    await progress.markCompleted(widget.story.id, starsAwarded: 2);
+    await context.read<ProgressProvider>().markCompleted(widget.story.id, starsAwarded: 2);
     if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => StarRewardOverlay(
-        onDone: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
-        },
-      ),
+      builder: (_) => StarRewardOverlay(onDone: () { Navigator.of(context).pop(); Navigator.of(context).pop(); }),
     );
   }
 
@@ -53,7 +41,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   Widget build(BuildContext context) {
     final story = widget.story;
     final audio = context.watch<AudioProvider>();
-
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -75,20 +62,13 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                         children: [
                           Expanded(
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceAlt,
-                                borderRadius: BorderRadius.circular(24),
-                              ),
+                              decoration: BoxDecoration(color: AppColors.surfaceAlt, borderRadius: BorderRadius.circular(24)),
                               alignment: Alignment.center,
                               child: const Icon(Icons.image_rounded, size: 64, color: AppColors.locked),
                             ),
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            page.text,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 18, height: 1.5),
-                          ),
+                          Text(page.text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, height: 1.5)),
                           if (page.audioAsset != null) ...[
                             const SizedBox(height: 12),
                             IconButton.filled(
@@ -135,14 +115,10 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               child: OutlinedButton(
                 onPressed: () {
                   setState(() => _selectedQuizOption = i);
-                  if (isCorrect) {
-                    Future.delayed(const Duration(milliseconds: 400), _finishStory);
-                  }
+                  if (isCorrect) Future.delayed(const Duration(milliseconds: 400), _finishStory);
                 },
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: selected
-                      ? (isCorrect ? AppColors.success : AppColors.primaryCoral.withOpacity(0.2))
-                      : null,
+                  backgroundColor: selected ? (isCorrect ? AppColors.success : AppColors.primaryCoral.withValues(alpha: 0.2)) : null,
                 ),
                 child: Text(q.options[i]),
               ),
