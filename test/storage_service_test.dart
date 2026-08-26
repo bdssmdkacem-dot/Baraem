@@ -6,6 +6,7 @@ import 'package:baraem/core/storage_service.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    StorageService.resetForTesting();
   });
 
   test('storage keeps typed values and defaults', () async {
