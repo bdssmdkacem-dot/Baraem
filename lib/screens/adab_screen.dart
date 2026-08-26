@@ -31,9 +31,12 @@ class _AdabScreenState extends State<AdabScreen> {
     super.didChangeDependencies();
     if (_activityStarted) return;
     _activityStarted = true;
-    context.read<ActivityProvider>().start(
-      mannersActivity(_current.id, _current.situation),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ActivityProvider>().start(
+        mannersActivity(_current.id, _current.situation),
+      );
+    });
   }
 
   Future<void> _selectChoice(AdabChoice choice) async {
