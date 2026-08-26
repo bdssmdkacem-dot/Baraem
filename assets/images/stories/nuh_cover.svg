@@ -1,0 +1,28 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4FB3E8"/>
+      <stop offset="100%" stop-color="#BEE7F5"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#sky)"/>
+
+  <!-- rainbow -->
+  <path d="M50 250 A150 150 0 0 1 350 250" stroke="#FFC94A" stroke-width="12" fill="none"/>
+  <path d="M75 250 A125 125 0 0 1 325 250" stroke="#FF8A65" stroke-width="12" fill="none"/>
+  <path d="M100 250 A100 100 0 0 1 300 250" stroke="#3DC9A0" stroke-width="12" fill="none"/>
+
+  <!-- water -->
+  <rect x="0" y="255" width="400" height="145" fill="#2E86C1"/>
+  <path d="M0 255 Q50 245 100 255 T200 255 T300 255 T400 255 V400 H0 Z" fill="#4FB3E8"/>
+
+  <!-- ark hull -->
+  <path d="M105 300 Q200 345 295 300 L272 265 H128 Z" fill="#8B5E3C"/>
+  <path d="M105 300 Q200 345 295 300 L288 315 Q200 355 112 315 Z" fill="#6E4A30"/>
+
+  <!-- cabin -->
+  <rect x="148" y="225" width="104" height="45" rx="10" fill="#A9764F"/>
+  <rect x="168" y="240" width="20" height="20" rx="4" fill="#FFF8EE"/>
+  <rect x="212" y="240" width="20" height="20" rx="4" fill="#FFF8EE"/>
+  <path d="M142 227 L200 198 L258 227 Z" fill="#6E4A30"/>
+</svg>
