@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../character/character_state.dart';
 import '../core/app_scale.dart';
+import '../providers/character_provider.dart';
 import '../providers/progress_provider.dart';
 import '../theme/app_colors.dart';
+import '../widgets/baraem_character.dart';
 import '../widgets/daily_activity_card.dart';
 import '../widgets/home_header.dart';
-import '../widgets/mascot_widget.dart';
 import '../widgets/module_card.dart';
 import '../widgets/streak_row.dart';
 import 'adab_screen.dart';
@@ -33,10 +35,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   HomeHeader(stars: progress.stars),
                   const SizedBox(height: 20),
-                  const MascotWidget(
-                    message: 'أهلاً بك! هيا نتعلم شيئًا جميلًا اليوم 🌟',
-                    imageAsset: 'assets/images/mascot/mascot_lion.svg',
-                  ),
+                  const BaraemCharacter(),
                   const SizedBox(height: 16),
                   Semantics(
                     container: true,
@@ -54,9 +53,12 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 22),
                   DailyActivityCard(
-                    onStart: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const AdkarScreen()),
-                    ),
+                    onStart: () {
+                      context.read<CharacterProvider>().onActivityStarted();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AdkarScreen()),
+                      );
+                    },
                   ),
                   const SizedBox(height: 24),
                   const Text(
@@ -70,9 +72,12 @@ class HomeScreen extends StatelessWidget {
                     subtitle: 'أذكار الصباح والمساء',
                     icon: Icons.wb_sunny_rounded,
                     color: AppColors.primaryMint,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const AdkarScreen()),
-                    ),
+                    onTap: () {
+                      context.read<CharacterProvider>().onActivityStarted();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AdkarScreen()),
+                      );
+                    },
                   ),
                   const SizedBox(height: 14),
                   ModuleCard(
@@ -80,9 +85,12 @@ class HomeScreen extends StatelessWidget {
                     subtitle: 'حكايات جميلة ومفيدة',
                     icon: Icons.auto_stories_rounded,
                     color: AppColors.primaryCoral,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const StoriesScreen()),
-                    ),
+                    onTap: () {
+                      context.read<CharacterProvider>().onActivityStarted();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const StoriesScreen()),
+                      );
+                    },
                   ),
                   const SizedBox(height: 14),
                   ModuleCard(
@@ -90,9 +98,12 @@ class HomeScreen extends StatelessWidget {
                     subtitle: 'كيف نتصرف بشكل جميل',
                     icon: Icons.favorite_rounded,
                     color: AppColors.primarySky,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const AdabScreen()),
-                    ),
+                    onTap: () {
+                      context.read<CharacterProvider>().onActivityStarted();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AdabScreen()),
+                      );
+                    },
                   ),
                 ],
               ),
