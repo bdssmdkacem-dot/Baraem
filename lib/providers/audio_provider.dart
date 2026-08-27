@@ -8,16 +8,28 @@ import 'package:flutter/foundation.dart';
 class AudioProvider extends ChangeNotifier {
   final AudioPlayer _player = AudioPlayer();
   StreamSubscription<void>? _completeSubscription;
+  StreamSubscription<Duration>? _positionSubscription;
 
   String? _currentAsset;
   bool isPlaying = false;
   bool isMuted = false;
   String? lastError;
+  Duration position = Duration.zero;
+  Duration duration = Duration.zero;
 
   AudioProvider() {
     _completeSubscription = _player.onPlayerComplete.listen((_) {
       isPlaying = false;
       _currentAsset = null;
+      position = Duration.zero;
+      notifyListeners();
+    });
+    _positionSubscription = _player.onPositionChanged.listen((value) {
+      position = value;
+      notifyListeners();
+    });
+    _player.onDurationChanged.listen((value) {
+      duration = value;
       notifyListeners();
     });
   }
@@ -36,6 +48,8 @@ class AudioProvider extends ChangeNotifier {
     try {
       await _player.stop();
       _currentAsset = assetPath;
+      position = Duration.zero;
+      duration = Duration.zero;
       await _player.play(AssetSource(assetPath));
       isPlaying = true;
       notifyListeners();
@@ -65,12 +79,15 @@ class AudioProvider extends ChangeNotifier {
     }
     isPlaying = false;
     _currentAsset = null;
+    position = Duration.zero;
+    duration = Duration.zero;
     notifyListeners();
   }
 
   @override
   void dispose() {
     _completeSubscription?.cancel();
+    _positionSubscription?.cancel();
     unawaited(_player.dispose());
     super.dispose();
   }
