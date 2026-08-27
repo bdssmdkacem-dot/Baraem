@@ -21,7 +21,9 @@ class AudioProvider extends ChangeNotifier {
     _completeSubscription = _player.onPlayerComplete.listen((_) {
       isPlaying = false;
       _currentAsset = null;
-      position = Duration.zero;
+      if (duration > Duration.zero) {
+        position = duration;
+      }
       notifyListeners();
     });
     _positionSubscription = _player.onPositionChanged.listen((value) {
