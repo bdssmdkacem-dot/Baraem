@@ -1,0 +1,59 @@
+name: baraem
+description: "براعم - تطبيق تعليم القيم الإسلامية للأطفال (أذكار، قصص الأنبياء، آداب)"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
+  audioplayers: ^6.0.0
+  confetti: ^0.7.0
+  in_app_purchase: ^3.2.0
+  # google_mobile_ads retiré : jamais utilisé côté Dart (pas de MobileAds.initialize,
+  # pas de BannerAd/AdWidget), mais le plugin natif peut planter au démarrage sans
+  # meta-data com.google.android.gms.ads.APPLICATION_ID dans AndroidManifest.xml.
+  # Risque gratuit pour zéro bénéfice actuel -> à réintroduire seulement quand les
+  # pubs seront réellement implémentées, avec le vrai App ID configuré.
+  # flutter_svg retiré : toutes les illustrations sont maintenant des .jpg
+  # (Image.asset), plus aucun SvgPicture.asset dans le code.
+  # google_fonts retiré : jamais appelé (aucun GoogleFonts.xxx dans le code) ;
+  # en plus de l'usage nul, le package télécharge la police à la volée si elle
+  # n'est pas embarquée, ce qui échouerait silencieusement sans permission
+  # INTERNET — encore une dépendance dormante à réintroduire seulement avec
+  # une vraie police embarquée dans assets/fonts/.
+  # lottie retiré : jamais appelé (aucun fichier .json Lottie dans le projet).
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+
+flutter:
+  uses-material-design: true
+  # generate:true retiré : aucun l10n.yaml / fichier .arb dans le projet et
+  # AppLocalizations n'est utilisé nulle part. Ce flag active flutter gen-l10n
+  # sans configuration valide — config morte, sans effet confirmé ici mais
+  # sans utilité non plus.
+
+  assets:
+    - assets/images/mascot/
+    - assets/images/stories/
+    - assets/images/adab/
+    - assets/images/home/
+    - assets/audio/adkar/
+    - assets/audio/stories/
