@@ -45,12 +45,9 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
-  # generate:true retiré : aucun l10n.yaml / fichier .arb dans le projet et
-  # AppLocalizations n'est utilisé nulle part. Ce flag active flutter gen-l10n
-  # sans configuration valide — config morte, sans effet confirmé ici mais
-  # sans utilité non plus.
 
   assets:
+    - assets/images/
     - assets/images/mascot/
     - assets/images/stories/
     - assets/images/adab/
