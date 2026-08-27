@@ -13,7 +13,9 @@ class BaraemApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    debugPrint('[STARTUP] BaraemApp build');
+
+    final app = MaterialApp(
       title: 'براعم',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
@@ -39,5 +41,8 @@ class BaraemApp extends StatelessWidget {
         );
       },
     );
+
+    debugPrint('[STARTUP] MaterialApp created');
+    return app;
   }
 }
