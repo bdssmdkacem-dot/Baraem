@@ -1,20 +1,20 @@
 /// Baraem Adkar illustration assets.
 ///
-/// The illustrations currently stored in assets/images/ use these exact
-/// filenames. Keep this mapping separate from adkar_data.dart so the visual
-/// assets can be changed without touching the authenticated dhikr content.
+/// All Adkar illustrations live in the dedicated assets/images/adkar folder.
+/// Keep this mapping separate from adkar_data.dart so visual assets can be
+/// changed without touching the dhikr content.
 const Map<String, String> adkarIconAssets = {
-  'morning': 'assets/images/dhikr_morning.png',
-  'evening': 'assets/images/dhikr_evening.png',
-  'waking': 'assets/images/dhikr_waking.png',
-  'sleep': 'assets/images/dhikr_sleep.png',
-  'before_food': 'assets/images/dhikr_before_food.png',
-  'after_food': 'assets/images/dhikr_after_food.png',
-  'enter_mosque': 'assets/images/dhikr_enter_mosque.png',
-  'leave_mosque': 'assets/images/dhikr_leave_mosque.png',
-  'enter_home': 'assets/images/dhikr_enter_home.png',
-  'leave_home': 'assets/images/dhikr_leave_home.png',
-  'riding': 'assets/images/dhikr_riding.png',
+  'morning': 'assets/images/adkar/dhikr_morning.png',
+  'evening': 'assets/images/adkar/dhikr_evening.png',
+  'waking': 'assets/images/adkar/dhikr_waking.png',
+  'sleep': 'assets/images/adkar/dhikr_sleep.png',
+  'before_food': 'assets/images/adkar/dhikr_before_food.png',
+  'after_food': 'assets/images/adkar/dhikr_after_food.png',
+  'enter_mosque': 'assets/images/adkar/dhikr_enter_mosque.png',
+  'leave_mosque': 'assets/images/adkar/dhikr_leave_mosque.png',
+  'enter_home': 'assets/images/adkar/dhikr_enter_home.png',
+  'leave_home': 'assets/images/adkar/dhikr_leave_home.png',
+  'riding': 'assets/images/adkar/dhikr_riding.png',
 };
 
 String? adkarIconFor(String id) {
