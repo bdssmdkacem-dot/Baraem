@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../activities/activity_definitions.dart';
 import '../activities/activity_provider.dart';
 import '../data/adkar_data.dart';
+import '../data/adkar_icons.dart';
 import '../models/adkar_item.dart';
 import '../providers/audio_provider.dart';
 import '../providers/progress_provider.dart';
@@ -105,6 +106,7 @@ class _AdkarList extends StatelessWidget {
         final item = items[index];
         final locked = item.isPremium && !progress.isPremium;
         final done = progress.isCompleted(item.id);
+        final iconAsset = adkarIconFor(item.id);
 
         return Card(
           child: Padding(
@@ -112,7 +114,30 @@ class _AdkarList extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(item.arabicText, textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: locked ? AppColors.locked : AppColors.textDark)),
+                if (iconAsset != null) ...[
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        iconAsset,
+                        width: 112,
+                        height: 112,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
+                Text(
+                  item.arabicText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: locked ? AppColors.locked : AppColors.textDark,
+                  ),
+                ),
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
