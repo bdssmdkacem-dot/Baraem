@@ -19,18 +19,31 @@ class AppTheme {
       ),
     );
     return base.copyWith(
-      textTheme: base.textTheme.apply(fontFamily: 'BalooArabic', bodyColor: AppColors.textDark, displayColor: AppColors.textDark),
-      appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, elevation: 0, centerTitle: true, foregroundColor: AppColors.textDark),
+      textTheme: base.textTheme.apply(
+        fontFamily: 'BalooArabic',
+        bodyColor: AppColors.textDark,
+        displayColor: AppColors.textDark,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        foregroundColor: AppColors.textDark,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryMint,
           foregroundColor: AppColors.textOnPrimary,
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          textStyle: const TextStyle(fontFamily: 'BalooArabic', fontWeight: FontWeight.w700, fontSize: 18),
+          textStyle: const TextStyle(
+            fontFamily: 'BalooArabic',
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.08),
