@@ -18,7 +18,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.41.9"
+          flutter-version: "3.44.7"
           channel: stable
           cache: true
 
@@ -53,7 +53,7 @@ jobs:
       - name: Validate asset directories
         run: |
           set -e
-          for dir in assets/images/icon assets/images/mascot assets/images/stories assets/images/adab assets/audio/adkar assets/audio/stories; do
+          for dir in assets/icon assets/images/mascot assets/images/stories assets/images/adab assets/images/home assets/audio/adkar assets/audio/stories; do
             test -d "$dir"
           done
 
