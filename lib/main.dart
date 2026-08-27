@@ -14,7 +14,9 @@ import 'providers/progress_provider.dart';
 import 'providers/purchase_provider.dart';
 
 Future<void> main() async {
+  debugPrint('[STARTUP] main entered');
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint('[STARTUP] Flutter binding ready');
   AppErrorHandler.install();
 
   runGuardedApp(() {
@@ -31,6 +33,7 @@ Future<void> main() async {
         progress: progressProvider,
         character: characterProvider,
       );
+      debugPrint('[STARTUP] providers created');
 
       runApp(
         MultiProvider(
@@ -45,15 +48,17 @@ Future<void> main() async {
           child: const BaraemApp(),
         ),
       );
+      debugPrint('[STARTUP] runApp');
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        debugPrint('[STARTUP] first frame');
+      });
 
       // Startup services are optional and isolated from the first UI frame.
       unawaited(_loadAppState(appStateProvider));
       unawaited(_loadProgress(progressProvider));
       unawaited(_initBilling(purchaseProvider));
     } catch (error, stackTrace) {
-      // Never let a synchronous startup failure disappear behind the Android
-      // splash screen. Render a diagnostic screen so the failure is visible
-      // on a real device instead of the process apparently closing.
       debugPrint('Baraem synchronous startup failure: $error\n$stackTrace');
       runApp(_StartupFailureApp(error: error, stackTrace: stackTrace));
     }
