@@ -1,13 +1,6 @@
 import '../models/story_item.dart';
 
-/// ⚠️ Données d'exemple. Remplace les textes par ton contenu définitif
-/// (idéalement validé par une personne qualifiée en tarbiya).
-///
-/// Couvertures : illustration réelle pour les 4 histoires.
-/// Pages intérieures : illustration réelle seulement là où le fichier existe
-/// (nuh 1&2, yunus 1, ibrahim 2) — imageAsset reste `null` ailleurs
-/// (ibrahim page 1, les 3 pages de yusuf) et story_detail_screen.dart
-/// affiche alors un placeholder au lieu de planter sur un asset manquant.
+/// Story content used by the offline Baraem story reader.
 final List<StoryItem> stories = [
   const StoryItem(
     id: 'story_nuh',
@@ -16,8 +9,16 @@ final List<StoryItem> stories = [
     minAge: 2,
     pages: [
       StoryPage(
-        text: 'كان سيدنا نوح نبيًا صالحًا، يدعو قومه لعبادة الله وحده.',
-        imageAsset: 'assets/images/stories/nuh_1.jpg',
+        text:
+            'منذ زمن بعيد، كان هناك نبي كريم اسمه نوح عليه السلام.\n\n'
+            'اختاره الله ليهدي قومه، ويدعوهم إلى عبادة الله وحده، وأن يتركوا عبادة الأصنام.\n\n'
+            'كان سيدنا نوح عليه السلام يحب الخير لقومه، وكان يدعوهم برفق وصبر.\n\n'
+            'كان يقول لهم إن الله هو الخالق، وهو الذي أنعم عليهم ورزقهم، ولذلك ينبغي أن يعبدوه وحده.\n\n'
+            'لكن كثيرًا من قومه لم يستجيبوا لدعوته.\n\n'
+            'ومع ذلك، لم ييأس سيدنا نوح عليه السلام، بل استمر في دعوته، وصبر طويلًا، وكان يرجو أن يهدي الله قومه.\n\n'
+            'وكان هذا يعلمنا درسًا جميلًا: أن الإنسان لا يستسلم عندما يفعل الخير، بل يصبر ويستمر.\n\n'
+            'وبعد سنوات طويلة، أوحى الله إلى سيدنا نوح عليه السلام أن يصنع سفينة كبيرة، استعدادًا لأمر عظيم سيحدث. وهنا بدأت قصة السفينة والطوفان...',
+        imageAsset: 'assets/images/stories/nuh_1_01.jpg',
         audioAsset: 'audio/stories/nuh_1.mp3',
       ),
       StoryPage(
@@ -63,7 +64,6 @@ final List<StoryItem> stories = [
     pages: [
       StoryPage(
         text: 'كان سيدنا إبراهيم نبيًا شجاعًا، آمن بالله وحده ولم يعبد الأصنام.',
-        // Pas encore d'illustration pour cette page précise.
         audioAsset: 'audio/stories/ibrahim_1.mp3',
       ),
       StoryPage(
