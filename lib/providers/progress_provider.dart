@@ -34,9 +34,20 @@ class ProgressProvider extends ChangeNotifier {
     final lastActiveStr = _prefs.getString(_kLastActiveDay);
     lastActiveDay = lastActiveStr != null ? DateTime.tryParse(lastActiveStr) : null;
 
+    // Local storage may contain data written by an older version or become
+    // corrupted. Never let malformed completed IDs prevent app startup.
     final completedRaw = _prefs.getString(_kCompletedIds);
-    if (completedRaw != null) {
-      completedIds = Set<String>.from(jsonDecode(completedRaw) as List);
+    if (completedRaw != null && completedRaw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(completedRaw);
+        completedIds = decoded is List
+            ? decoded.whereType<String>().toSet()
+            : {};
+      } catch (_) {
+        completedIds = {};
+      }
+    } else {
+      completedIds = {};
     }
 
     _loadTodayCompletions();
@@ -58,7 +69,10 @@ class ProgressProvider extends ChangeNotifier {
     }
 
     try {
-      completedTodayIds = Set<String>.from(jsonDecode(raw) as List);
+      final decoded = jsonDecode(raw);
+      completedTodayIds = decoded is List
+          ? decoded.whereType<String>().toSet()
+          : {};
     } catch (_) {
       completedTodayIds = {};
     }
