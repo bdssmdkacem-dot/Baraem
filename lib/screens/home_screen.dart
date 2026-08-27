@@ -28,6 +28,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('[STARTUP] HomeScreen build');
+
     final progress = context.watch<ProgressProvider>();
     final horizontalPadding = AppScale.horizontalPadding(context);
 
