@@ -25,7 +25,45 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   bool _completedActivity = false;
   bool _activityStarted = false;
 
+  // These ratios follow the supplied Nuh narration script. The audio provider
+  // maps them to the actual loaded duration, so the scene changes stay synced
+  // even if ElevenLabs regenerates the same script at a slightly different speed.
+  static const List<String> _nuhSceneImages = [
+    'assets/images/stories/nuh_1_01.jpg',
+    'assets/images/stories/nuh_1_02.jpg',
+    'assets/images/stories/nuh_1_03.jpg',
+    'assets/images/stories/nuh_1_04.jpg',
+    'assets/images/stories/nuh_1_05.jpg',
+    'assets/images/stories/nuh_1_06.jpg',
+    'assets/images/stories/nuh_1_07.jpg',
+    'assets/images/stories/nuh_1_08.jpg',
+  ];
+
+  static const List<double> _nuhSceneEnds = [
+    0.0828,
+    0.2047,
+    0.3063,
+    0.4422,
+    0.5016,
+    0.6578,
+    0.7891,
+    1.0,
+  ];
+
   bool get _isLastPage => _currentPage == widget.story.pages.length - 1;
+
+  bool get _isNuhOpeningPage =>
+      widget.story.id == 'story_nuh' && _currentPage == 0;
+
+  int _nuhSceneIndex(AudioProvider audio) {
+    if (!_isNuhOpeningPage || audio.duration <= Duration.zero) return 0;
+    final progress = (audio.position.inMilliseconds / audio.duration.inMilliseconds)
+        .clamp(0.0, 1.0);
+    for (var i = 0; i < _nuhSceneEnds.length; i++) {
+      if (progress <= _nuhSceneEnds[i]) return i;
+    }
+    return _nuhSceneImages.length - 1;
+  }
 
   @override
   void didChangeDependencies() {
@@ -98,6 +136,36 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     );
   }
 
+  Widget _storyImage(StoryPage page, AudioProvider audio) {
+    final asset = _isNuhOpeningPage
+        ? _nuhSceneImages[_nuhSceneIndex(audio)]
+        : page.imageAsset;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        decoration: const BoxDecoration(color: AppColors.surfaceAlt),
+        alignment: Alignment.center,
+        child: asset != null
+            ? Image.asset(
+                asset,
+                fit: BoxFit.contain,
+                width: double.infinity,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.image_rounded,
+                  size: 64,
+                  color: AppColors.locked,
+                ),
+              )
+            : const Icon(
+                Icons.image_rounded,
+                size: 64,
+                color: AppColors.locked,
+              ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final story = widget.story;
@@ -131,31 +199,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(24),
-                                child: Container(
-                                  decoration: const BoxDecoration(color: AppColors.surfaceAlt),
-                                  alignment: Alignment.center,
-                                  child: page.imageAsset != null
-                                      ? Image.asset(
-                                          page.imageAsset!,
-                                          fit: BoxFit.contain,
-                                          width: double.infinity,
-                                          errorBuilder: (_, __, ___) => const Icon(
-                                            Icons.image_rounded,
-                                            size: 64,
-                                            color: AppColors.locked,
-                                          ),
-                                        )
-                                      : const Icon(
-                                          Icons.image_rounded,
-                                          size: 64,
-                                          color: AppColors.locked,
-                                        ),
-                                ),
-                              ),
-                            ),
+                            Expanded(child: _storyImage(page, audio)),
                             const SizedBox(height: 20),
                             Text(
                               page.text,
@@ -167,12 +211,28 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                               IconButton.filled(
                                 onPressed: () => audio.playAsset(page.audioAsset!),
                                 icon: Icon(
-                                  audio.isPlaying ? Icons.pause : Icons.volume_up_rounded,
+                                  audio.isPlaying &&
+                                          audio.currentAsset == page.audioAsset
+                                      ? Icons.pause
+                                      : Icons.volume_up_rounded,
                                 ),
                                 style: IconButton.styleFrom(
                                   backgroundColor: AppColors.primaryCoral,
                                 ),
                               ),
+                              if (_isNuhOpeningPage &&
+                                  audio.currentAsset == page.audioAsset &&
+                                  audio.duration > Duration.zero)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: LinearProgressIndicator(
+                                    value: (audio.position.inMilliseconds /
+                                            audio.duration.inMilliseconds)
+                                        .clamp(0.0, 1.0),
+                                    minHeight: 4,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
                             ],
                           ],
                         ),
