@@ -29,23 +29,35 @@ class PurchaseProvider extends ChangeNotifier {
   void Function(bool isPremium)? onPremiumChanged;
 
   Future<void> init() async {
-    storeAvailable = await _iap.isAvailable();
-    if (!storeAvailable) {
-      notifyListeners();
-      return;
-    }
-
-    _subscription = _iap.purchaseStream.listen(
-      _handlePurchaseUpdates,
-      onDone: () => _subscription?.cancel(),
-      onError: (Object error) {
-        uiState = PurchaseUiState.error;
-        errorMessage = error.toString();
+    try {
+      storeAvailable = await _iap.isAvailable();
+      if (!storeAvailable) {
         notifyListeners();
-      },
-    );
+        return;
+      }
 
-    await _loadProducts();
+      _subscription = _iap.purchaseStream.listen(
+        _handlePurchaseUpdates,
+        onDone: () => _subscription?.cancel(),
+        onError: (Object error) {
+          uiState = PurchaseUiState.error;
+          errorMessage = error.toString();
+          notifyListeners();
+        },
+      );
+
+      await _loadProducts();
+    } catch (error) {
+      // Billing is optional at startup. A Play Store/device billing failure
+      // must never prevent Baraem from reaching Home.
+      storeAvailable = false;
+      uiState = PurchaseUiState.error;
+      errorMessage = error.toString();
+      if (kDebugMode) {
+        debugPrint('⚠️ Google Play Billing unavailable: $error');
+      }
+      notifyListeners();
+    }
   }
 
   Future<void> _loadProducts() async {
