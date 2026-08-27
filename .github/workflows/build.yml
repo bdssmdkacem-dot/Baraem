@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.29.3"
+          flutter-version: "3.41.9"
           channel: stable
           cache: true
 
@@ -25,8 +28,27 @@ jobs:
           if [ ! -d "android/app" ]; then
             flutter create --platforms=android --org com.baraem --project-name baraem --no-pub .
           fi
-          test -f android/app/build.gradle || test -f android/app/build.gradle.kts
-          test -f android/settings.gradle || test -f android/settings.gradle.kts
+
+          test -f android/app/build.gradle.kts
+          test -f android/settings.gradle.kts
+          test -f android/app/src/main/AndroidManifest.xml
+          test -f android/app/src/main/kotlin/com/baraem/baraem/MainActivity.kt
+
+          # Keep the Android NDK aligned with the current Flutter plugins.
+          sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
+
+      - name: Commit Android project to GitHub
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android .metadata
+          if git diff --cached --quiet; then
+            echo "Android project already tracked."
+          else
+            git commit -m "android: add Flutter Android project"
+            git push origin HEAD:main
+          fi
 
       - name: Validate asset directories
         run: |
