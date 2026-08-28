@@ -36,10 +36,36 @@ class BaraemApp extends StatelessWidget {
         AppRoutes.stories: (_) => const StoriesScreen(),
         '/profile-setup': (_) => const ProfileSetupScreen(),
       },
-      initialRoute: profile.profileCompleted ? AppRoutes.home : '/profile-setup',
+      home: !profile.isLoaded
+          ? const _ProfileLoadingScreen()
+          : profile.profileCompleted
+              ? const HomeScreen()
+              : const ProfileSetupScreen(),
       builder: (context, child) => Directionality(
         textDirection: TextDirection.rtl,
         child: child ?? const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+class _ProfileLoadingScreen extends StatelessWidget {
+  const _ProfileLoadingScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('🌱', style: TextStyle(fontSize: 64)),
+            SizedBox(height: 12),
+            Text('براعم', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
+            SizedBox(height: 20),
+            CircularProgressIndicator(),
+          ],
+        ),
       ),
     );
   }
