@@ -1,7 +1,7 @@
 import '../models/story_item.dart';
 
-/// Offline story catalogue. The same story is adapted by age through quiz
-/// minAge values; the story engine can therefore be reused for every prophet.
+/// Offline story catalogue. Stories are content-driven so the same engine can
+/// be reused for every prophet and adapted to the child's age.
 final List<StoryItem> stories = [
   const StoryItem(
     id: 'story_nuh',
@@ -10,24 +10,63 @@ final List<StoryItem> stories = [
     minAge: 2,
     pages: [
       StoryPage(
-        text: 'كان نوح عليه السلام نبيًا يدعو قومه إلى عبادة الله وحده.',
+        text: 'كان نوح عليه السلام نبيًا يدعو قومه إلى عبادة الله وحده وترك عبادة ما لا ينفع ولا يضر.',
         imageAsset: 'assets/images/stories/nuh_1_01.jpg',
-        audioAsset: 'audio/stories/nuh_1.mp3',
+        audioAsset: 'audio/stories/nuh_01.mp3',
       ),
       StoryPage(
-        text: 'أمر الله نوحًا أن يصنع السفينة، ثم جاءت رحمة الله ونجا المؤمنون.',
-        imageAsset: 'assets/images/stories/nuh_2.jpg',
-        audioAsset: 'audio/stories/nuh_2.mp3',
+        text: 'ظل نوح عليه السلام يدعو قومه بصبر، وكان يدعوهم إلى الإيمان بالله وطاعته.',
+        imageAsset: 'assets/images/stories/nuh_1_02.jpg',
+        audioAsset: 'audio/stories/nuh_02.mp3',
+      ),
+      StoryPage(
+        text: 'وأوحى الله إلى نوح عليه السلام أن يصنع السفينة بأمر الله وتحت عنايته.',
+        imageAsset: 'assets/images/stories/nuh_1_03.jpg',
+        audioAsset: 'audio/stories/nuh_03.mp3',
+      ),
+      StoryPage(
+        text: 'وبدأ نوح عليه السلام يصنع السفينة، وكان قومه يمرون به ويسخرون منه.',
+        imageAsset: 'assets/images/stories/nuh_1_04.jpg',
+        audioAsset: 'audio/stories/nuh_04.mp3',
+      ),
+      StoryPage(
+        text: 'ثم جاء أمر الله، وبدأ الماء بالهطول. وركب نوح عليه السلام ومن آمن معه في السفينة.',
+        imageAsset: 'assets/images/stories/nuh_1_05.jpg',
+        audioAsset: 'audio/stories/nuh_05.mp3',
+      ),
+      StoryPage(
+        text: 'وحملت السفينة من كل نوع زوجين، ونجّى الله نوحًا والذين آمنوا معه برحمته.',
+        imageAsset: 'assets/images/stories/nuh_1_06.jpg',
+        audioAsset: 'audio/stories/nuh_06.mp3',
+      ),
+      StoryPage(
+        text: 'وكان من أهل نوح من لم يؤمن، فدعاه نوح إلى الركوب، لكنه لم يستجب، وكان من المغرقين.',
+        imageAsset: 'assets/images/stories/nuh_1_07.jpg',
+        audioAsset: 'audio/stories/nuh_07.mp3',
+      ),
+      StoryPage(
+        text: 'وانتهى الطوفان، واستوت السفينة على الجودي، ونجّى الله المؤمنين. ومن القصة نتعلم الصبر والطاعة والثبات على الخير.',
+        imageAsset: 'assets/images/stories/nuh_1_08.jpg',
+        audioAsset: 'audio/stories/nuh_08.mp3',
       ),
     ],
     quiz: [
-      // 2–4: recognition and simple memory.
+      // 2–4: listening, recognition and simple memory.
       QuizQuestion(
-        question: 'ماذا بنى سيدنا نوح عليه السلام؟',
+        question: 'من نبي هذه القصة؟',
+        options: ['نوح عليه السلام', 'موسى عليه السلام', 'يوسف عليه السلام'],
+        correctIndex: 0,
+        minAge: 2,
+        audioAsset: 'audio/stories/quiz/nuh_q01.mp3',
+        explanation: 'نبي القصة هو نوح عليه السلام.',
+      ),
+      QuizQuestion(
+        question: 'ماذا بنى نوح عليه السلام؟',
         options: ['سفينة 🚢', 'قصرًا 🏰', 'سيارة 🚗'],
         correctIndex: 0,
         minAge: 2,
-        hint: 'تذكّر الشيء الذي صنعه نوح بأمر الله.',
+        audioAsset: 'audio/stories/quiz/nuh_q02.mp3',
+        hint: 'تذكّر الشيء الكبير الذي صنعه نوح بأمر الله.',
         explanation: 'بنى نوح عليه السلام السفينة بأمر الله.',
       ),
       QuizQuestion(
@@ -35,38 +74,51 @@ final List<StoryItem> stories = [
         options: ['سفينة 🚢', 'طائرة ✈️', 'قطار 🚆'],
         correctIndex: 0,
         minAge: 2,
-        explanation: 'السفينة من أهم أحداث القصة.',
+        audioAsset: 'audio/stories/quiz/nuh_q03.mp3',
+        explanation: 'السفينة من أهم مشاهد القصة.',
       ),
       QuizQuestion(
-        question: 'هل استمر نوح عليه السلام في دعوة قومه؟',
+        question: 'هل كان نوح عليه السلام صبورًا؟',
         options: ['نعم', 'لا'],
         correctIndex: 0,
         minAge: 2,
         kind: QuizKind.trueFalse,
-        explanation: 'نتعلم من القصة الصبر والاستمرار في الخير.',
+        audioAsset: 'audio/stories/quiz/nuh_q04.mp3',
+        explanation: 'نتعلم من قصة نوح عليه السلام الصبر والثبات.',
       ),
 
       // 5–7: sequence and basic understanding.
       QuizQuestion(
-        question: 'ماذا فعل نوح عليه السلام بعد أن أمره الله؟',
-        options: ['صنع السفينة', 'ترك الدعوة', 'بنى قصرًا'],
+        question: 'ماذا كان نوح عليه السلام يدعو قومه؟',
+        options: ['إلى عبادة الله وحده', 'إلى اللعب فقط', 'إلى جمع المال'],
         correctIndex: 0,
         minAge: 5,
-        explanation: 'بدأ نوح عليه السلام ببناء السفينة كما أمره الله.',
+        audioAsset: 'audio/stories/quiz/nuh_q05.mp3',
+        explanation: 'كان يدعوهم إلى عبادة الله وحده وطاعته.',
+      ),
+      QuizQuestion(
+        question: 'ماذا فعل نوح عليه السلام عندما أمره الله ببناء السفينة؟',
+        options: ['بدأ ببنائها', 'ترك الأمر', 'ذهب بعيدًا'],
+        correctIndex: 0,
+        minAge: 5,
+        audioAsset: 'audio/stories/quiz/nuh_q06.mp3',
+        explanation: 'استجاب نوح عليه السلام لأمر الله وبدأ ببناء السفينة.',
+      ),
+      QuizQuestion(
+        question: 'من ركب السفينة مع نوح عليه السلام؟',
+        options: ['من آمن معه', 'كل قومه', 'لا أحد'],
+        correctIndex: 0,
+        minAge: 5,
+        audioAsset: 'audio/stories/quiz/nuh_q07.mp3',
+        explanation: 'ركب نوح عليه السلام ومن آمن معه في السفينة.',
       ),
       QuizQuestion(
         question: 'ما الصفة الجميلة التي نتعلمها من نوح عليه السلام؟',
-        options: ['الصبر', 'الكسل', 'الغضب'],
+        options: ['الصبر', 'الكسل', 'اليأس'],
         correctIndex: 0,
         minAge: 5,
-        explanation: 'من دروس القصة الصبر والثبات على الخير.',
-      ),
-      QuizQuestion(
-        question: 'ماذا حدث بعد اكتمال السفينة؟',
-        options: ['جاء أمر الله وركب المؤمنون', 'ذهب نوح للنوم', 'اختفت السفينة'],
-        correctIndex: 0,
-        minAge: 5,
-        explanation: 'كانت السفينة سببًا للنجاة للمؤمنين بأمر الله.',
+        audioAsset: 'audio/stories/quiz/nuh_q08.mp3',
+        explanation: 'نتعلم الصبر والثبات على الخير.',
       ),
 
       // 8–10: comprehension.
@@ -75,21 +127,32 @@ final List<StoryItem> stories = [
         options: ['لأن الله أمر نوحًا بذلك', 'لأنها لعبة', 'لأن قومه طلبوا منه ذلك'],
         correctIndex: 0,
         minAge: 8,
+        audioAsset: 'audio/stories/quiz/nuh_q09.mp3',
         explanation: 'كان نوح عليه السلام ينفذ أمر الله بثقة وطاعة.',
       ),
       QuizQuestion(
         question: 'أي موقف يعبّر عن الصبر في القصة؟',
-        options: ['الاستمرار في الدعوة رغم الصعوبات', 'ترك العمل سريعًا', 'السخرية من الآخرين'],
+        options: ['الاستمرار في الدعوة رغم الصعوبات', 'ترك الخير سريعًا', 'السخرية من الآخرين'],
         correctIndex: 0,
         minAge: 8,
+        audioAsset: 'audio/stories/quiz/nuh_q10.mp3',
         explanation: 'الصبر يظهر في الاستمرار في الخير رغم المشقة.',
       ),
       QuizQuestion(
-        question: 'ما الفكرة الأساسية في نهاية القصة؟',
-        options: ['النجاة بطاعة الله', 'أهمية جمع المال', 'بناء أكبر سفينة للمتعة'],
+        question: 'ما الذي حدث للمؤمنين عندما جاء الطوفان؟',
+        options: ['نجّاهم الله في السفينة', 'تركوا السفينة', 'اختفوا من القصة'],
         correctIndex: 0,
         minAge: 8,
-        explanation: 'تعلّمنا القصة أن طاعة الله والثبات على الحق من أسباب النجاة.',
+        audioAsset: 'audio/stories/quiz/nuh_q11.mp3',
+        explanation: 'نجّى الله نوحًا والذين آمنوا معه برحمته.',
+      ),
+      QuizQuestion(
+        question: 'ما الفكرة الأساسية التي نتعلمها من نهاية القصة؟',
+        options: ['الطاعة والصبر والثبات على الخير', 'جمع المال', 'الاستسلام عند الصعوبة'],
+        correctIndex: 0,
+        minAge: 8,
+        audioAsset: 'audio/stories/quiz/nuh_q12.mp3',
+        explanation: 'من أهم دروس القصة الطاعة والصبر والثبات على الخير.',
       ),
 
       // 11–13: reflection and deeper understanding.
@@ -99,6 +162,7 @@ final List<StoryItem> stories = [
         correctIndex: 0,
         minAge: 11,
         kind: QuizKind.reflection,
+        audioAsset: 'audio/stories/quiz/nuh_q13.mp3',
         explanation: 'الثبات على الحق مع الصبر من أبرز الدروس التربوية في القصة.',
       ),
       QuizQuestion(
@@ -107,18 +171,36 @@ final List<StoryItem> stories = [
         correctIndex: 0,
         minAge: 11,
         kind: QuizKind.reflection,
+        audioAsset: 'audio/stories/quiz/nuh_q14.mp3',
         explanation: 'نوح عليه السلام آمن بأمر الله واستجاب له بالعمل.',
       ),
       QuizQuestion(
-        question: 'أي درس يمكن تطبيقه في حياة الطالب اليوم؟',
-        options: ['الصبر على التعلم وفعل الخير', 'الاستسلام عند أول خطأ', 'ترك النصيحة دائمًا'],
+        question: 'كيف يمكن للطالب أن يطبق درس الصبر في حياته؟',
+        options: ['يصبر على التعلم وفعل الخير', 'يستسلم عند أول خطأ', 'يترك العمل إذا صعب'],
         correctIndex: 0,
         minAge: 11,
         kind: QuizKind.reflection,
+        audioAsset: 'audio/stories/quiz/nuh_q15.mp3',
         explanation: 'نحوّل معنى الصبر والثبات إلى سلوك عملي في الدراسة والخير.',
+      ),
+      QuizQuestion(
+        question: 'لماذا لا نقيس نجاح العمل فقط بسرعة استجابة الآخرين؟',
+        options: ['لأن علينا القيام بالخير والصبر، والنتائج بيد الله', 'لأن العمل غير مهم', 'لأن رأي الناس هو المقياس الوحيد'],
+        correctIndex: 0,
+        minAge: 11,
+        kind: QuizKind.reflection,
+        audioAsset: 'audio/stories/quiz/nuh_q16.mp3',
+        explanation: 'تعلّمنا قصة نوح عليه السلام الصبر والثبات وعدم اليأس بسبب قلة المستجيبين.',
       ),
     ],
     games: [
+      StoryGame(
+        id: 'nuh_memory',
+        title: 'ذاكرة القصة',
+        kind: StoryGameKind.memory,
+        items: ['سفينة', 'ماء', 'حيوانات', 'نجاة'],
+        minAge: 2,
+      ),
       StoryGame(
         id: 'nuh_order',
         title: 'رتّب أحداث القصة',
@@ -134,13 +216,6 @@ final List<StoryItem> stories = [
         items: ['الصبر والثبات', 'الكسل', 'اليأس'],
         correctOrder: [0],
         minAge: 8,
-      ),
-      StoryGame(
-        id: 'nuh_memory',
-        title: 'ذاكرة القصة',
-        kind: StoryGameKind.memory,
-        items: ['سفينة', 'ماء', 'حيوانات', 'نجاة'],
-        minAge: 2,
       ),
     ],
   ),
