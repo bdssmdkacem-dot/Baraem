@@ -19,6 +19,13 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
   int? _selected;
   bool _resultsSaved = false;
   final Map<String, int> _scores = {};
+  AudioProvider? _audioProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _audioProvider ??= context.read<AudioProvider>();
+  }
 
   void _start() {
     final players = context.read<PlayersProvider>().players;
@@ -36,7 +43,7 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
     final next = _engine?.next();
     setState(() { _current = next; _answered = false; _selected = null; });
     final asset = next?.question.audioAsset;
-    if (asset != null && asset.trim().isNotEmpty) context.read<AudioProvider>().playAsset(asset);
+    if (asset != null && asset.trim().isNotEmpty) _audioProvider?.playAsset(asset);
   }
 
   Future<void> _answer(int index) async {
@@ -48,12 +55,16 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
     if (correct) _scores[current.player.id] = (_scores[current.player.id] ?? 0) + 1;
     await context.read<PlayersProvider>().recordQuestionResult(playerId: current.player.id, correct: correct);
     if (!mounted) return;
-    await context.read<AudioProvider>().playAsset(correct ? 'audio/ui/correct.mp3' : 'audio/ui/try_again.mp3');
+    await _audioProvider?.playAsset(correct ? 'audio/ui/correct.mp3' : 'audio/ui/try_again.mp3');
     if (!mounted) return;
     setState(() { _answered = true; _selected = index; _round++; });
   }
 
-  @override void dispose() { context.read<AudioProvider>().stop(); super.dispose(); }
+  @override
+  void dispose() {
+    _audioProvider?.stop();
+    super.dispose();
+  }
 
   @override Widget build(BuildContext context) {
     final current = _current;
