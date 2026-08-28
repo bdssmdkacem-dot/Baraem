@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/stories_data.dart';
 import '../models/player_profile.dart';
+import '../providers/audio_provider.dart';
 import '../providers/players_provider.dart';
 import '../services/friends_challenge_engine.dart';
 
@@ -25,12 +26,13 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
     final questions = stories.firstWhere((s) => s.id == 'story_nuh').quiz;
     setState(() {
       _engine = FriendsChallengeEngine(players: List<PlayerProfile>.from(players), questions: questions);
-      _scores
-        ..clear()
-        ..addEntries(players.map((p) => MapEntry(p.id, 0)));
+      _scores..clear()..addEntries(players.map((p) => MapEntry(p.id, 0)));
       _round = 0;
-      _nextQuestion();
+      _current = null;
+      _answered = false;
+      _selected = null;
     });
+    _nextQuestion();
   }
 
   void _nextQuestion() {
@@ -40,15 +42,22 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
       _answered = false;
       _selected = null;
     });
+    if (next != null) {
+      context.read<AudioProvider>().playAsset(next.question.audioAsset);
+    }
   }
 
-  void _answer(int index) {
+  Future<void> _answer(int index) async {
     final current = _current;
     final engine = _engine;
     if (current == null || engine == null || _answered) return;
     final correct = index == current.question.correctIndex;
     engine.answer(player: current.player, question: current.question, correct: correct);
     if (correct) _scores[current.player.id] = (_scores[current.player.id] ?? 0) + 1;
+    await context.read<PlayersProvider>().recordQuestionResult(playerId: current.player.id, correct: correct);
+    if (!mounted) return;
+    await context.read<AudioProvider>().playAsset(correct ? 'audio/ui/correct.mp3' : 'audio/ui/try_again.mp3');
+    if (!mounted) return;
     setState(() {
       _answered = true;
       _selected = index;
@@ -57,18 +66,17 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
   }
 
   @override
+  void dispose() {
+    context.read<AudioProvider>().stop();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final current = _current;
     return Scaffold(
       appBar: AppBar(title: const Text('🏆 تحدّي الأصدقاء')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: _engine == null
-            ? _setup(context)
-            : current == null
-                ? _results()
-                : _question(current),
-      ),
+      body: Padding(padding: const EdgeInsets.all(20), child: _engine == null ? _setup(context) : current == null ? _finishChallenge(context) : _question(current)),
     );
   }
 
@@ -80,7 +88,7 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
       const SizedBox(height: 12),
       Text('اللاعبون: ${players.length}/4', style: const TextStyle(fontSize: 18)),
       const SizedBox(height: 20),
-      Expanded(child: ListView(children: players.map((p) => Card(child: ListTile(title: Text(p.nickname), subtitle: Text('${p.age} سنة')))).toList())),
+      Expanded(child: ListView(children: players.map((p) => Card(child: ListTile(title: Text(p.nickname), subtitle: Text('${p.age} سنة • ⭐ ${p.stars}')))).toList())),
       FilledButton.icon(onPressed: players.length >= 2 ? _start : null, icon: const Icon(Icons.play_arrow), label: const Text('ابدأ التحدّي')),
     ]);
   }
@@ -90,7 +98,7 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
     final correct = _selected == q.correctIndex;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text('دور ${current.player.nickname}', textAlign: TextAlign.center, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-      Text('الجولة ${_round + 1}', textAlign: TextAlign.center),
+      Text('الجولة ${_round + 1} • ⭐ ${current.player.stars + (_scores[current.player.id] ?? 0)}', textAlign: TextAlign.center),
       const SizedBox(height: 24),
       Text(q.question, textAlign: TextAlign.center, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
       const SizedBox(height: 20),
@@ -104,15 +112,25 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
     ]);
   }
 
-  Widget _results() {
+  Widget _finishChallenge(BuildContext context) {
     final players = _engine?.players ?? const <PlayerProfile>[];
     final ranked = List<PlayerProfile>.from(players)..sort((a, b) => (_scores[b.id] ?? 0).compareTo(_scores[a.id] ?? 0));
+    if (_round > 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _engine != null && !_resultsSaved) {
+          _resultsSaved = true;
+          context.read<PlayersProvider>().recordChallengeResult(scores: _scores);
+        }
+      });
+    }
     return Column(children: [
       const SizedBox(height: 20),
       const Text('🏆 انتهى التحدّي!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
       const SizedBox(height: 24),
-      Expanded(child: ListView.builder(itemCount: ranked.length, itemBuilder: (_, i) => Card(child: ListTile(leading: Text(i == 0 ? '🥇' : i == 1 ? '🥈' : '⭐', style: const TextStyle(fontSize: 26)), title: Text(ranked[i].nickname), trailing: Text('${_scores[ranked[i].id] ?? 0} نقاط'))))),
+      Expanded(child: ListView.builder(itemCount: ranked.length, itemBuilder: (_, i) => Card(child: ListTile(leading: Text(i == 0 ? '🥇' : i == 1 ? '🥈' : '⭐', style: const TextStyle(fontSize: 26)), title: Text(ranked[i].nickname), subtitle: Text('⭐ ${ranked[i].stars} • فاز ${ranked[i].challengesWon} مرة'), trailing: Text('${_scores[ranked[i].id] ?? 0} نقاط'))))),
       FilledButton.icon(onPressed: _start, icon: const Icon(Icons.replay), label: const Text('جولة جديدة')),
     ]);
   }
+
+  bool _resultsSaved = false;
 }
