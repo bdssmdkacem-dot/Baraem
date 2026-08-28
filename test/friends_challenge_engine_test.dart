@@ -6,6 +6,7 @@ import 'package:baraem/services/friends_challenge_engine.dart';
 void main() {
   const questions = [
     QuizQuestion(question: 'سؤال صغير', options: ['نعم', 'لا'], correctIndex: 0, minAge: 5),
+    QuizQuestion(question: 'سؤال متوسط', options: ['نعم', 'لا'], correctIndex: 0, minAge: 8),
     QuizQuestion(question: 'سؤال كبير', options: ['نعم', 'لا'], correctIndex: 0, minAge: 11),
   ];
 
@@ -18,15 +19,17 @@ void main() {
 
     final first = engine.next()!;
     expect(first.player.id, 'a');
+    expect(first.question.minAge, 5);
     engine.answer(player: first.player, question: first.question, correct: true);
 
     final second = engine.next()!;
     expect(second.player.id, 'b');
+    expect(second.question.minAge, 11);
     engine.answer(player: second.player, question: second.question, correct: false);
 
     expect(engine.scores['a'], 1);
     expect(engine.scores['b'], 0);
-    expect(engine.isFinished, isTrue);
+    expect(engine.isFinished, isFalse);
   });
 
   test('supports one player and uses that player age', () {
@@ -48,16 +51,22 @@ void main() {
 
     final first = engine.next()!;
     expect(first.player.id, 'a');
+    expect(first.question.minAge, 5);
     engine.answer(player: first.player, question: first.question, correct: true);
+
     final second = engine.next()!;
     expect(second.player.id, 'b');
+    expect(second.question.minAge, 8);
     engine.answer(player: second.player, question: second.question, correct: true);
+
     final third = engine.next()!;
     expect(third.player.id, 'c');
+    expect(third.question.minAge, 11);
     engine.answer(player: third.player, question: third.question, correct: true);
 
     expect(engine.scores['a'], 1);
     expect(engine.scores['b'], 1);
-    expect(engine.scores['c'], 0);
+    expect(engine.scores['c'], 1);
+    expect(engine.isFinished, isTrue);
   });
 }
