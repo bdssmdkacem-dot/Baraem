@@ -33,23 +33,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   List<int> _gameOrder = [];
   List<QuizQuestion>? _adaptiveQuestions;
 
-  static const List<String> _nuhSceneImages = [
-    'assets/images/stories/nuh_1_01.png',
-    'assets/images/stories/nuh_1_02.png',
-    'assets/images/stories/nuh_1_03.png',
-    'assets/images/stories/nuh_1_04.png',
-    'assets/images/stories/nuh_1_05.png',
-    'assets/images/stories/nuh_1_06.png',
-    'assets/images/stories/nuh_1_07.png',
-    'assets/images/stories/nuh_1_08.png',
-  ];
-
-  static const List<double> _nuhSceneEnds = [
-    0.0828, 0.2047, 0.3063, 0.4422, 0.5016, 0.6578, 0.7891, 1.0,
-  ];
-
   bool get _isLastPage => _currentPage == widget.story.pages.length - 1;
-  bool get _isNuhOpeningPage => widget.story.id == 'story_nuh' && _currentPage == 0;
 
   List<QuizQuestion> _questionsForChild(ProgressProvider progress) {
     _adaptiveQuestions ??= _quizEngine.select(
@@ -63,15 +47,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   }
 
   List<StoryGame> _gamesForAge(int age) => widget.story.games.where((g) => g.minAge <= age).toList(growable: false);
-
-  int _nuhSceneIndex(AudioProvider audio) {
-    if (!_isNuhOpeningPage || audio.duration <= Duration.zero) return 0;
-    final progress = (audio.position.inMilliseconds / audio.duration.inMilliseconds).clamp(0.0, 1.0);
-    for (var i = 0; i < _nuhSceneEnds.length; i++) {
-      if (progress <= _nuhSceneEnds[i]) return i;
-    }
-    return _nuhSceneImages.length - 1;
-  }
 
   @override
   void didChangeDependencies() {
@@ -133,8 +108,8 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => StoryDetailScreen(story: nextStory)));
   }
 
-  Widget _storyImage(StoryPage page, AudioProvider audio) {
-    final asset = _isNuhOpeningPage ? _nuhSceneImages[_nuhSceneIndex(audio)] : page.imageAsset;
+  Widget _storyImage(StoryPage page) {
+    final asset = page.imageAsset;
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: Container(
@@ -142,8 +117,12 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
         alignment: Alignment.center,
         child: asset == null
             ? const Icon(Icons.image_rounded, size: 64, color: AppColors.locked)
-            : Image.asset(asset, fit: BoxFit.contain, width: double.infinity,
-                errorBuilder: (_, __, ___) => const Icon(Icons.image_rounded, size: 64, color: AppColors.locked)),
+            : Image.asset(
+                asset,
+                fit: BoxFit.contain,
+                width: double.infinity,
+                errorBuilder: (_, __, ___) => const Icon(Icons.image_rounded, size: 64, color: AppColors.locked),
+              ),
       ),
     );
   }
@@ -204,12 +183,13 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       itemCount: story.pages.length,
       itemBuilder: (context, index) {
         final page = story.pages[index];
+        final isCurrentAudio = page.audioAsset != null && audio.currentAsset == page.audioAsset;
         return Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(child: _storyImage(page, audio)),
+              Expanded(child: _storyImage(page)),
               if (page.text.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Text(page.text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, height: 1.5)),
@@ -218,10 +198,10 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                 const SizedBox(height: 12),
                 IconButton.filled(
                   onPressed: () => audio.playAsset(page.audioAsset!),
-                  icon: Icon(audio.isPlaying && audio.currentAsset == page.audioAsset ? Icons.pause : Icons.volume_up_rounded),
+                  icon: Icon(isCurrentAudio && audio.isPlaying ? Icons.pause : Icons.volume_up_rounded),
                   style: IconButton.styleFrom(backgroundColor: AppColors.primaryCoral),
                 ),
-                if (_isNuhOpeningPage && audio.currentAsset == page.audioAsset && audio.duration > Duration.zero)
+                if (isCurrentAudio && audio.duration > Duration.zero)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: LinearProgressIndicator(
