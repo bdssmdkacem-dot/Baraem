@@ -1,110 +1,130 @@
 # براعم (Baraem)
 
-Jeu éducatif freemium pour enfants 2-6 ans autour des valeurs islamiques :
-أذكار (dhikr), قصص الأنبياء (histoires des prophètes), آداب (bonnes manières).
+تطبيق/لعبة تعليمية للأطفال 2–13 سنة حول القيم الإسلامية، مع أذكار وقصص الأنبياء وآداب وشخصيات قابلة للاختيار.
 
-## 🐛 Bug corrigé (session du 27/08) — l'app ne s'ouvrait pas sur téléphone
+## 🎨 معيار الأصول البصرية — إصدار 2026-08-28
 
-**Cause** : `lib/widgets/baraem_character.dart` appelait
-`context.watch<CharacterState>()`, mais seul `CharacterProvider` (qui
-encapsule `CharacterState` en interne, sans jamais l'exposer au widget tree)
-était enregistré dans `main.dart`. Résultat : une `ProviderNotFoundException`
-à **chaque** construction de `HomeScreen` — soit dès le tout premier écran
-de l'app.
+هذا القسم هو المرجع الموحد لجميع الأصول الجديدة. يجب عدم استخدام مقاسات عشوائية عند إنشاء صور جديدة في Canva أو أي مولّد صور.
 
-**Pourquoi `flutter analyze` et `flutter test` passaient quand même** :
-c'est un type mismatch détecté seulement à l'exécution (Provider ne fait pas
-de vérification statique), et **aucun test existant ne construisait
-`HomeScreen`** — donc rien ne pouvait le détecter en CI. `test/baraem_smoke_test.dart`
-pompe maintenant `HomeScreen` avec exactement le même `MultiProvider` que
-`main.dart` et vérifie qu'aucun `ErrorWidget` n'apparaît, pour que ce type de
-régression soit détecté avant le prochain push, pas après installation sur
-un téléphone.
+### 1. صور قصص الأنبياء
 
-**Autres correctifs de la même session** :
-- `google_mobile_ads`, `google_fonts`, `lottie`, `flutter_svg` retirés du
-  `pubspec.yaml` : aucun n'était utilisé côté Dart. `google_mobile_ads` en
-  particulier peut planter au démarrage nativement (avant même que Dart ne
-  s'exécute) si le meta-data `com.google.android.gms.ads.APPLICATION_ID`
-  manque dans le manifeste — risque gratuit pour zéro bénéfice tant que les
-  pubs ne sont pas réellement implémentées.
-- `generate: true` retiré (config l10n morte, aucun fichier `.arb`).
-- Permission `INTERNET` ajoutée à `android/app/src/main/AndroidManifest.xml`
-  (le manifeste de debug l'ajoutait déjà automatiquement, pas celui de release).
-- Version Flutter du workflow CI mise à jour vers `3.44.7` (version stable
-  vérifiée au moment de cette session).
+- **المقاس الأساسي:** `1024 × 576 px`
+- **النسبة:** `16:9`
+- **الصيغة:** JPG للصور ذات الخلفية المصورة؛ PNG فقط عند الحاجة إلى شفافية.
+- **الاستخدام:** شاشة القصة، الصفحات الداخلية، ومشاهد القصة.
+- **الاسم:** `nuh_1_01.jpg`، `nuh_1_02.jpg` ... حسب رقم المشهد.
+- يجب الحفاظ على نفس الهوية البصرية بين جميع مشاهد القصة.
+- لا نص داخل الصورة إلا إذا طلبت واجهة التطبيق ذلك صراحة.
 
-## 🎨 Illustrations
+> ملاحظة: المقاس المقصود للصور هو **1024×576** وليس 1024×190؛ لأن الهدف شاشة قصة أفقية بنسبة 16:9.
 
-Les 18 images fournies (personnages, couvertures d'histoires, mascotte, bannière
-d'accueil) étaient en pleine résolution "fond d'écran" (768×1376, 11,2 Mo au
-total). Elles ont été redimensionnées/compressées pour un usage réel en app
-(~1,3 Mo au total) et intégrées :
+### 2. أيقونة الصوت 🔊
 
-- `assets/images/adab/*.jpg` — les 7 scénarios آداب
-- `assets/images/stories/*_cover.jpg` — couvertures des 4 histoires
-- `assets/images/stories/{nuh_1,nuh_2,yunus_1,ibrahim_2}.jpg` — illustrations
-  de pages intérieures (partiel, voir ⏳ ci-dessous)
-- `assets/images/mascot/mascot_girl.jpg` — recadrée en avatar carré (visage +
-  main levée) depuis `mascot.png`, utilisée dans `BaraemCharacter` (accueil)
-  et `MascotWidget` (écran آداب)
-- `assets/images/home/home_illustration.jpg` — bannière écran d'accueil
-- `docs/logo-baraem.png` — logo avec texte intégré, pour le README/store
-  listing uniquement (pas bundlé dans l'app, le texte ferait doublon avec l'UI)
+- **Master:** `512 × 512 px`
+- **نسخة التطبيق:** `256 × 256 px` أو SVG إن كانت الأيقونة vector.
+- **صيغة:** PNG بخلفية شفافة عند الحاجة.
+- التصميم: زر/رمز صوت طفولي مستدير، متناسق مع هوية Baraem، واضح جدًا على الشاشات الصغيرة.
+- لا نص داخل الأيقونة.
+- يجب أن تكون لها حالات واضحة: تشغيل / إيقاف أو كتم، مع بقاء الشكل الأساسي ثابتًا.
 
-Toutes les images (`Image.asset`) ont un `errorBuilder` de repli : un asset
-manquant ou mal orthographié affiche une icône placeholder au lieu de planter
-— même classe de défense que le fix du bug principal.
+### 3. أيقونة Baraem التي تظهر عند تنزيل التطبيق 📱
 
-⏳ **Encore à faire** :
-- Illustrations manquantes : page 1 de إبراهيم, 3 pages de يوسف
-  (`lib/data/stories_data.dart` — `imageAsset` reste `null` là où le fichier
-  n'existe pas, `story_detail_screen.dart` gère déjà ce cas proprement)
-- `assets/audio/adkar/*.mp3` et `assets/audio/stories/*.mp3` — aucun fichier
-  audio n'existe encore. `AudioProvider.playAsset()` est déjà protégé par
-  try/catch (pas de crash, juste un `lastError` silencieux), mais le bouton
-  lecture ne fait donc rien tant que les fichiers ne sont pas ajoutés.
-- Police custom (`BalooArabic`) référencée dans `app_theme.dart` mais jamais
-  embarquée — l'app utilise donc la police système par défaut, sans crash.
+- **Master:** `1024 × 1024 px`
+- **Android launcher source:** `512 × 512 px` على الأقل.
+- **Adaptive icon:** خلفية وطبقة foreground منفصلتان، كل منهما `1024 × 1024 px`.
+- يجب إبقاء الشعار والعناصر المهمة داخل منطقة آمنة مركزية لتجنب قصها عند اختلاف أشكال launchers.
+- لا نص صغير غير مقروء.
 
-## 📦 Récupérer l'APK
+المرجع الحالي لهوية الشعار يعتمد على الألوان والعناصر المعتمدة في تصميم Baraem؛ لا يتم تغيير الهوية عند إنشاء نسخ جديدة. fileciteturn0file4L66-L80
 
-Le workflow `.github/workflows/build.yml` compile un **APK debug** (adapté
-pour tester sur ton téléphone, pas pour publier sur le Play Store) à chaque
-push sur `main` :
+### 4. شاشة البداية قبل بدء التطبيق (Splash / Launch)
 
-1. Pousse ce zip dans ton repo GitHub `Baraem` (remplace tout le contenu).
-2. Onglet **Actions** du repo → attends que le workflow se termine (~5-10 min).
-3. Ouvre le run terminé → section **Artifacts** en bas de page → télécharge
-   `baraem-debug-apk`.
-4. Décompresse, transfère `app-debug.apk` sur ton téléphone, installe
-   (autorise les sources inconnues si demandé).
+- **Master:** `1080 × 1920 px`
+- **النسبة:** `9:16`
+- نسخة عالية الدقة اختيارية: `1440 × 2560 px`.
+- يجب أن تكون قابلة للعرض بملء الشاشة مع الحفاظ على منطقة آمنة وسطية للشعار.
+- لا يتم وضع معلومات مهمة على الحواف لأن الأجهزة تختلف في القص والـinsets.
+- الهوية نفسها المستخدمة في أيقونة Baraem، مع تكوين أبسط ومناسب للـSplash.
 
-Le workflow génère aussi automatiquement `android/` et `ios/` au premier run
-(via `flutter create`) et les commit dans le repo — normal de voir un commit
-`android: add Flutter Android project` apparaître après coup.
+### 5. خمس شخصيات Avatar 👧🧒
 
-Pour un **APK/AAB signé pour le Play Store**, il faudra ajouter une étape de
-signing (keystore + `key.properties`) au workflow — pas fait ici, ce n'était
-pas le besoin immédiat (test sur téléphone).
+نضيف خمس شخصيات ثابتة ليختار الطفل شخصيته، وتستخدم أيضًا عند مشاركة اللعب/الإنجاز.
 
-## Contenu à compléter avant publication
+- **كل شخصية:** `512 × 512 px`
+- **Master اختياري:** `1024 × 1024 px`
+- **الصيغة:** PNG بخلفية شفافة.
+- الشخصية كاملة أو نصفية بشكل واضح، مع مساحة آمنة حولها.
+- أسلوب 2D لطيف، مستدير، مناسب للأطفال 2–13 سنة.
+- الشخصيات الخمس يجب أن تبدو من نفس المجموعة: نفس مستوى التفاصيل، الإضاءة، الخطوط، والـrendering.
+- لا نص، لا شعارات، ولا علامات مائية داخل صور الشخصيات.
+- أسماء الملفات المقترحة:
+  - `avatar_01.png`
+  - `avatar_02.png`
+  - `avatar_03.png`
+  - `avatar_04.png`
+  - `avatar_05.png`
 
-- `lib/data/adkar_data.dart`, `lib/data/stories_data.dart` — contenu
-  religieux d'exemple, à étoffer et **faire relire par quelqu'un de qualifié**
-  avant toute publication.
-- IAP (`purchase_provider.dart`) : produit `baraem_premium_unlock` à créer
-  dans Play Console, et validation serveur du reçu recommandée avant prod
-  (actuellement le déblocage fait confiance au statut local du store).
+### 6. قواعد تسمية الأصول
 
-## Architecture (état actuel)
+استخدم أسماء ASCII صغيرة ثابتة، بدون مسافات أو أحرف عربية:
 
-- `core/` — `AppErrorHandler` (capture les erreurs Flutter/zone, affiche un
-  écran de repli au lieu de crasher), `StorageService` (wrapper
-  SharedPreferences), `AppScale` (paddings/tailles responsives), `AppRoutes`.
-- `providers/` + `activities/` — `AppStateProvider`, `ProgressProvider`,
-  `CharacterProvider` (encapsule `CharacterState`, humeur du personnage),
-  `PurchaseProvider`, `ActivityProvider` (orchestre les activités du jour).
-- `screens/` — `HomeScreen` (route initiale), `AdkarScreen`, `StoriesScreen`
-  + `StoryDetailScreen`, `AdabScreen`.
-- `test/` — 8 fichiers, dont `baraem_smoke_test.dart` (voir bug ci-dessus).
+```text
+assets/images/stories/nuh_1_01.jpg
+assets/images/stories/nuh_1_02.jpg
+assets/images/ui/audio_icon.png
+assets/images/branding/baraem_icon.png
+assets/images/branding/baraem_splash.png
+assets/images/avatars/avatar_01.png
+...
+assets/images/avatars/avatar_05.png
+```
+
+## 🧩 مرجع الهوية البصرية
+
+الصور الحالية المستخدمة كمرجع لبراعم تعتمد على أسلوب رسومي/تطبيقي موحد مع شخصيات وواجهات مستديرة وأصول واضحة. يجب اعتبار الهوية الحالية هي المرجع وعدم إعادة تصميمها من الصفر. fileciteturn0file0L12-L24
+
+## 🔊 الصوت
+
+ملفات الصوت الحالية/المطلوبة توضع في:
+
+- `assets/audio/adkar/`
+- `assets/audio/stories/`
+
+الأسماء يجب أن تطابق أسماء المقاطع التي يستدعيها الكود. لا تغيّر أسماء ملفات الصوت فقط بسبب اختلاف صيغة التسمية.
+
+## 📚 قصص الأنبياء
+
+مشاهد قصة نوح تستخدم نمط تسمية متسلسل مثل:
+
+```text
+nuh_1_01.jpg
+nuh_1_02.jpg
+nuh_1_03.jpg
+```
+
+ويجب أن تبقى صور الشخصيات المقدسة ممثلة باحترام؛ لا يتم إظهار وجه نوح عليه السلام أو ملامحه.
+
+## 🛡️ متطلبات السلامة البصرية
+
+- لا أدوات أو ملابس حديثة في القصص التاريخية.
+- لا صور مخيفة أو عنيفة.
+- لا شعارات أو علامات مائية داخل الرسومات.
+- لا نص داخل مشاهد القصص.
+- الحفاظ على تناسق الألوان والإضاءة بين المشاهد.
+- جميع الصور موجهة للأطفال ومناسبة للعرض على الهاتف.
+
+## 🧪 حالة التنفيذ
+
+الأصول المطلوبة لهذا التحديث موثقة في `ASSETS_README.md`. وجود ملفات README وحده لا يضيف ملفات الصور فعليًا؛ عند إضافة كل أصل إلى المستودع يجب وضعه في المسار والاسم والمقاس المحدد هنا، ثم ربطه بالكود و`pubspec.yaml` عند الحاجة.
+
+## 🏗️ ملاحظة تقنية
+
+عند إضافة أصل جديد، يجب التحقق من:
+
+1. وجود الملف فعليًا في المسار الصحيح.
+2. تطابق الاسم مع المرجع في Dart.
+3. إدراج مجلد الأصول في `pubspec.yaml` إذا كان يحتاج ذلك.
+4. عدم وجود asset مكرر باسم مختلف.
+5. تشغيل `flutter analyze` والاختبارات قبل البناء.
+
+هذا المشروع يتم تحديثه تدريجيًا مع الحفاظ على السلوك العامل وعدم إعادة بنائه من الصفر.
