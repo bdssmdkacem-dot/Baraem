@@ -88,7 +88,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     if (_currentPage < widget.story.pages.length - 1) {
       await _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
-      setState(() {});
+      setState(() => _quizFinished = true);
     }
   }
 
