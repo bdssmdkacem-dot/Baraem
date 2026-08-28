@@ -37,6 +37,33 @@ jobs:
           # Keep the Android NDK aligned with the current Flutter plugins.
           sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
 
+      - name: Fix story final-page transition
+        run: |
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("lib/screens/story_detail_screen.dart")
+          text = path.read_text()
+          old = """    } else {\n      setState(() {});\n    }\n  }\n"""
+          new = """    } else {\n      setState(() => _quizFinished = true);\n    }\n  }\n"""
+          if old not in text:
+              raise SystemExit("Expected story final-page transition was not found")
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+      - name: Commit source fixes to GitHub
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/screens/story_detail_screen.dart
+          if git diff --cached --quiet; then
+            echo "Story source already fixed."
+          else
+            git commit -m "fix: enter adaptive quiz after final story page"
+            git push origin HEAD:main
+          fi
+
       - name: Commit Android project to GitHub
         run: |
           set -e
