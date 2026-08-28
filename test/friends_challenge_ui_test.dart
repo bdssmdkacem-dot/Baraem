@@ -31,8 +31,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('آدم'), findsOneWidget);
     expect(find.text('سارة'), findsOneWidget);
+
+    // Players must be selected before the challenge can start.
+    await tester.tap(find.text('آدم'));
+    await tester.pump();
+    await tester.tap(find.text('سارة'));
+    await tester.pump();
     await tester.tap(find.text('ابدأ التحدّي'));
     await tester.pumpAndSettle();
+
     expect(find.textContaining('دور'), findsOneWidget);
     expect(find.text('السؤال التالي'), findsNothing);
     expect(find.byType(FilledButton), findsWidgets);
