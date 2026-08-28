@@ -22,7 +22,7 @@ class FriendsChallengeEngine {
   ChallengeQuestion? next() {
     if (players.length < 2 || _remaining.isEmpty) return null;
     final player = players[_turn % players.length];
-    final selected = AdaptiveQuizEngine.select(
+    final selected = const AdaptiveQuizEngine().select(
       questions: _remaining,
       age: player.age,
       stars: scores[player.id] ?? 0,
