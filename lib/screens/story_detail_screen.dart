@@ -34,14 +34,14 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   List<QuizQuestion>? _adaptiveQuestions;
 
   static const List<String> _nuhSceneImages = [
-    'assets/images/stories/nuh_1_01.jpg',
-    'assets/images/stories/nuh_1_02.jpg',
-    'assets/images/stories/nuh_1_03.jpg',
-    'assets/images/stories/nuh_1_04.jpg',
-    'assets/images/stories/nuh_1_05.jpg',
-    'assets/images/stories/nuh_1_06.jpg',
-    'assets/images/stories/nuh_1_07.jpg',
-    'assets/images/stories/nuh_1_08.jpg',
+    'assets/images/stories/nuh_1_01.png',
+    'assets/images/stories/nuh_1_02.png',
+    'assets/images/stories/nuh_1_03.png',
+    'assets/images/stories/nuh_1_04.png',
+    'assets/images/stories/nuh_1_05.png',
+    'assets/images/stories/nuh_1_06.png',
+    'assets/images/stories/nuh_1_07.png',
+    'assets/images/stories/nuh_1_08.png',
   ];
 
   static const List<double> _nuhSceneEnds = [
