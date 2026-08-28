@@ -107,6 +107,10 @@ void main() {
     await tester.tap(find.text('بنى السفينة'));
     await tester.pumpAndSettle();
 
+    expect(find.text('إلى اللعبة 🎮'), findsOneWidget);
+    await tester.tap(find.text('إلى اللعبة 🎮'));
+    await tester.pumpAndSettle();
+
     expect(find.text('اختر الإجابة الصحيحة'), findsOneWidget);
     await tester.tap(find.text('بنى السفينة'));
     await tester.pumpAndSettle();
