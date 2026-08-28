@@ -134,12 +134,14 @@ class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
   Widget _finishChallenge(BuildContext context) {
     final players = _engine?.players ?? const <PlayerProfile>[];
     final ranked = List<PlayerProfile>.from(players)..sort((a, b) => (_scores[b.id] ?? 0).compareTo(_scores[a.id] ?? 0));
-    if (_round > 0) WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_resultsSaved) {
-        _resultsSaved = true;
-        context.read<PlayersProvider>().recordChallengeResult(scores: _scores);
-      }
-    });
+    if (_round > 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_resultsSaved) {
+          _resultsSaved = true;
+          context.read<PlayersProvider>().recordChallengeResult(scores: _scores);
+        }
+      });
+    }
     return Column(children: [const SizedBox(height: 20), const Text('🏆 انتهى التحدّي!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)), const SizedBox(height: 24), Expanded(child: ListView.builder(itemCount: ranked.length, itemBuilder: (_, i) => Card(child: ListTile(leading: Text(i == 0 ? '🥇' : i == 1 ? '🥈' : '⭐', style: const TextStyle(fontSize: 26)), title: Text(ranked[i].nickname), subtitle: Text('⭐ ${ranked[i].stars} • فاز ${ranked[i].challengesWon} مرة'), trailing: Text('${_scores[ranked[i].id] ?? 0} نقاط'))))), FilledButton.icon(onPressed: _start, icon: const Icon(Icons.replay), label: const Text('جولة جديدة'))]);
   }
 }
