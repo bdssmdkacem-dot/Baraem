@@ -7,7 +7,6 @@ class ActivityEngine {
 
   final ProgressProvider progress;
   final CharacterProvider character;
-
   ActivityStatus _status = ActivityStatus.available;
   ActivityStatus get status => _status;
 
@@ -20,16 +19,19 @@ class ActivityEngine {
     character.onActivityStarted();
   }
 
-  Future<ActivityResult> complete(ActivityDefinition activity) async {
+  Future<ActivityResult> complete(
+    ActivityDefinition activity, {
+    int starsAwarded = 1,
+  }) async {
     if (_status != ActivityStatus.inProgress || progress.isCompleted(activity.id)) {
       return ActivityResult(activityId: activity.id, completed: false);
     }
-
+    final stars = starsAwarded.clamp(1, 5);
     _status = ActivityStatus.completed;
     character.onActivityCompleted();
-    await progress.markCompleted(activity.id);
+    await progress.markCompleted(activity.id, starsAwarded: stars);
     character.onStarEarned();
-    return ActivityResult(activityId: activity.id, completed: true, starsEarned: 1);
+    return ActivityResult(activityId: activity.id, completed: true, starsEarned: stars);
   }
 
   void miss(ActivityDefinition activity) {
