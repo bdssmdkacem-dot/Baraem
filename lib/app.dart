@@ -30,7 +30,6 @@ class BaraemApp extends StatelessWidget {
       ],
       onGenerateTitle: (context) => 'براعم',
       routes: {
-        AppRoutes.home: (_) => const HomeScreen(),
         AppRoutes.adhkar: (_) => const AdkarScreen(),
         AppRoutes.manners: (_) => const AdabScreen(),
         AppRoutes.stories: (_) => const StoriesScreen(),
