@@ -22,6 +22,11 @@ class PlayersProvider extends ChangeNotifier {
               nickname: item['nickname']?.toString() ?? '',
               age: ((item['age'] as num?)?.toInt() ?? 6).clamp(2, 13),
               gender: item['gender']?.toString() ?? 'boy',
+              stars: (item['stars'] as num?)?.toInt() ?? 0,
+              challengesPlayed: (item['challengesPlayed'] as num?)?.toInt() ?? 0,
+              challengesWon: (item['challengesWon'] as num?)?.toInt() ?? 0,
+              questionsAnswered: (item['questionsAnswered'] as num?)?.toInt() ?? 0,
+              correctAnswers: (item['correctAnswers'] as num?)?.toInt() ?? 0,
             )).where((p) => p.id.isNotEmpty && p.nickname.isNotEmpty));
         }
       } catch (_) {}
@@ -42,12 +47,46 @@ class PlayersProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  PlayerProfile? getById(String id) {
+    for (final player in players) {
+      if (player.id == id) return player;
+    }
+    return null;
+  }
+
+  Future<void> recordChallengeResult({required Map<String, int> scores}) async {
+    if (scores.isEmpty) return;
+    var best = -1;
+    for (final score in scores.values) {
+      if (score > best) best = score;
+    }
+    for (var i = 0; i < players.length; i++) {
+      final player = players[i];
+      final score = scores[player.id] ?? 0;
+      final won = score == best && best > 0;
+      players[i] = player.copyWith(
+        stars: player.stars + score,
+        challengesPlayed: player.challengesPlayed + 1,
+        challengesWon: player.challengesWon + (won ? 1 : 0),
+        questionsAnswered: player.questionsAnswered + 1,
+        correctAnswers: player.correctAnswers + score,
+      );
+    }
+    await _save();
+    notifyListeners();
+  }
+
   Future<void> _save() async {
     await _prefs.setString(_key, jsonEncode(players.map((p) => {
       'id': p.id,
       'nickname': p.nickname,
       'age': p.age,
       'gender': p.gender,
+      'stars': p.stars,
+      'challengesPlayed': p.challengesPlayed,
+      'challengesWon': p.challengesWon,
+      'questionsAnswered': p.questionsAnswered,
+      'correctAnswers': p.correctAnswers,
     }).toList()));
   }
 }
