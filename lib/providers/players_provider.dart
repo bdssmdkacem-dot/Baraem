@@ -47,11 +47,19 @@ class PlayersProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  PlayerProfile? getById(String id) {
-    for (final player in players) {
-      if (player.id == id) return player;
-    }
-    return null;
+  PlayerProfile? getById(String id) => players.cast<PlayerProfile?>().firstWhere((p) => p?.id == id, orElse: () => null);
+
+  Future<void> recordQuestionResult({required String playerId, required bool correct}) async {
+    final index = players.indexWhere((p) => p.id == playerId);
+    if (index < 0) return;
+    final player = players[index];
+    players[index] = player.copyWith(
+      stars: player.stars + (correct ? 1 : 0),
+      questionsAnswered: player.questionsAnswered + 1,
+      correctAnswers: player.correctAnswers + (correct ? 1 : 0),
+    );
+    await _save();
+    notifyListeners();
   }
 
   Future<void> recordChallengeResult({required Map<String, int> scores}) async {
@@ -68,8 +76,6 @@ class PlayersProvider extends ChangeNotifier {
         stars: player.stars + score,
         challengesPlayed: player.challengesPlayed + 1,
         challengesWon: player.challengesWon + (won ? 1 : 0),
-        questionsAnswered: player.questionsAnswered + 1,
-        correctAnswers: player.correctAnswers + score,
       );
     }
     await _save();
