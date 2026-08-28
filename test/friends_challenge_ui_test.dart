@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../lib/models/player_profile.dart';
-import '../lib/providers/players_provider.dart';
-import '../lib/screens/friends_challenge_screen.dart';
+import 'package:baraem/models/player_profile.dart';
+import 'package:baraem/providers/players_provider.dart';
+import 'package:baraem/screens/friends_challenge_screen.dart';
 
 void main() {
   testWidgets('friends challenge starts with two players and shows adaptive question', (tester) async {
