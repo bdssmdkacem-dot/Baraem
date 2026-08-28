@@ -9,7 +9,7 @@ class ChallengeQuestion {
 }
 
 class FriendsChallengeEngine {
-  FriendsChallengeEngine({required this.players, required this.questions})
+  FriendsChallengeEngine({required this.players, required List<QuizQuestion> questions})
       : _remaining = List<QuizQuestion>.from(questions);
 
   final List<PlayerProfile> players;
@@ -22,7 +22,7 @@ class FriendsChallengeEngine {
   ChallengeQuestion? next() {
     if (players.length < 2 || _remaining.isEmpty) return null;
     final player = players[_turn % players.length];
-    final selected = const AdaptiveQuizEngine().select(
+    final selected = AdaptiveQuizEngine.select(
       questions: _remaining,
       age: player.age,
       stars: scores[player.id] ?? 0,
@@ -33,15 +33,9 @@ class FriendsChallengeEngine {
     return ChallengeQuestion(player: player, question: selected.first);
   }
 
-  void answer({
-    required PlayerProfile player,
-    required QuizQuestion question,
-    required bool correct,
-  }) {
+  void answer({required PlayerProfile player, required QuizQuestion question, required bool correct}) {
     _remaining.remove(question);
-    if (correct) {
-      scores[player.id] = (scores[player.id] ?? 0) + 1;
-    }
+    if (correct) scores[player.id] = (scores[player.id] ?? 0) + 1;
     _turn++;
   }
 }
