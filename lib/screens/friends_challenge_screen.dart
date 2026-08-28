@@ -1,70 +1,118 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../data/stories_data.dart';
 import '../models/player_profile.dart';
 import '../providers/players_provider.dart';
+import '../services/friends_challenge_engine.dart';
 
-class FriendsChallengeScreen extends StatelessWidget {
+class FriendsChallengeScreen extends StatefulWidget {
   const FriendsChallengeScreen({super.key});
+  @override
+  State<FriendsChallengeScreen> createState() => _FriendsChallengeScreenState();
+}
+
+class _FriendsChallengeScreenState extends State<FriendsChallengeScreen> {
+  FriendsChallengeEngine? _engine;
+  ChallengeQuestion? _current;
+  int _round = 0;
+  bool _answered = false;
+  int? _selected;
+  final Map<String, int> _scores = {};
+
+  void _start() {
+    final players = context.read<PlayersProvider>().players;
+    if (players.length < 2) return;
+    final questions = stories.firstWhere((s) => s.id == 'story_nuh').quiz;
+    setState(() {
+      _engine = FriendsChallengeEngine(players: List<PlayerProfile>.from(players), questions: questions);
+      _scores
+        ..clear()
+        ..addEntries(players.map((p) => MapEntry(p.id, 0)));
+      _round = 0;
+      _nextQuestion();
+    });
+  }
+
+  void _nextQuestion() {
+    final next = _engine?.next();
+    setState(() {
+      _current = next;
+      _answered = false;
+      _selected = null;
+    });
+  }
+
+  void _answer(int index) {
+    final current = _current;
+    final engine = _engine;
+    if (current == null || engine == null || _answered) return;
+    final correct = index == current.question.correctIndex;
+    engine.answer(player: current.player, question: current.question, correct: correct);
+    if (correct) _scores[current.player.id] = (_scores[current.player.id] ?? 0) + 1;
+    setState(() {
+      _answered = true;
+      _selected = index;
+      _round++;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final players = context.watch<PlayersProvider>();
+    final current = _current;
     return Scaffold(
-      appBar: AppBar(title: const Text('تحدّي الأصدقاء')),
+      appBar: AppBar(title: const Text('🏆 تحدّي الأصدقاء')),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('أضف إخوتك أو أصدقاءك واختبروا معلوماتكم الدينية!', textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: players.players.length,
-                itemBuilder: (_, index) {
-                  final p = players.players[index];
-                  return Card(child: ListTile(title: Text(p.nickname), subtitle: Text('${p.age} سنة • ${p.gender == 'girl' ? 'بنت' : 'ولد'}'), trailing: IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => players.remove(p.id))));
-                },
-              ),
-            ),
-            if (players.players.length < 4)
-              FilledButton.icon(
-                onPressed: () => _addPlayer(context),
-                icon: const Icon(Icons.person_add_alt_1),
-                label: Text('إضافة لاعب (${players.players.length}/4)'),
-              ),
-            const SizedBox(height: 10),
-            FilledButton.icon(
-              onPressed: players.players.length >= 2 ? () => _startChallenge(context) : null,
-              icon: const Icon(Icons.emoji_events_rounded),
-              label: const Text('ابدأ التحدّي'),
-            ),
-          ],
-        ),
+        child: _engine == null
+            ? _setup(context)
+            : current == null
+                ? _results()
+                : _question(current),
       ),
     );
   }
 
-  Future<void> _addPlayer(BuildContext context) async {
-    final name = TextEditingController();
-    var age = 8;
-    var gender = 'boy';
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(builder: (_, setState) => AlertDialog(
-        title: const Text('إضافة لاعب'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: name, autofocus: true, decoration: const InputDecoration(labelText: 'اسم مستعار')),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<int>(value: age, decoration: const InputDecoration(labelText: 'العمر'), items: [for (var i = 2; i <= 13; i++) DropdownMenuItem(value: i, child: Text('$i سنة'))], onChanged: (v) => setState(() => age = v ?? 8)),
-          DropdownButtonFormField<String>(value: gender, decoration: const InputDecoration(labelText: 'الجنس'), items: const [DropdownMenuItem(value: 'boy', child: Text('ولد')), DropdownMenuItem(value: 'girl', child: Text('بنت'))], onChanged: (v) => setState(() => gender = v ?? 'boy')),
-        ]),
-        actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('إلغاء')), FilledButton(onPressed: () { if (name.text.trim().isEmpty) return; context.read<PlayersProvider>().add(PlayerProfile(id: DateTime.now().microsecondsSinceEpoch.toString(), nickname: name.text.trim(), age: age, gender: gender)); Navigator.pop(dialogContext); }, child: const Text('إضافة'))],
-      )),
-    );
+  Widget _setup(BuildContext context) {
+    final players = context.watch<PlayersProvider>().players;
+    return Column(children: [
+      const SizedBox(height: 20),
+      const Text('تحدّي قصة نوح عليه السلام', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900), textAlign: TextAlign.center),
+      const SizedBox(height: 12),
+      Text('اللاعبون: ${players.length}/4', style: const TextStyle(fontSize: 18)),
+      const SizedBox(height: 20),
+      Expanded(child: ListView(children: players.map((p) => Card(child: ListTile(title: Text(p.nickname), subtitle: Text('${p.age} سنة')))).toList())),
+      FilledButton.icon(onPressed: players.length >= 2 ? _start : null, icon: const Icon(Icons.play_arrow), label: const Text('ابدأ التحدّي')),
+    ]);
   }
 
-  void _startChallenge(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('التحدّي جاهز — سنربطه بمحرك الأسئلة المتكيف في الخطوة التالية.')));
+  Widget _question(ChallengeQuestion current) {
+    final q = current.question;
+    final correct = _selected == q.correctIndex;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Text('دور ${current.player.nickname}', textAlign: TextAlign.center, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+      Text('الجولة ${_round + 1}', textAlign: TextAlign.center),
+      const SizedBox(height: 24),
+      Text(q.question, textAlign: TextAlign.center, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+      const SizedBox(height: 20),
+      ...List.generate(q.options.length, (i) => Padding(padding: const EdgeInsets.only(bottom: 10), child: FilledButton(onPressed: _answered ? null : () => _answer(i), child: Text(q.options[i])))),
+      if (_answered) ...[
+        const SizedBox(height: 14),
+        Text(correct ? 'أحسنت! ⭐' : 'حاول مرة أخرى 🌱', textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 12),
+        FilledButton(onPressed: _nextQuestion, child: const Text('السؤال التالي')),
+      ],
+    ]);
+  }
+
+  Widget _results() {
+    final players = _engine?.players ?? const <PlayerProfile>[];
+    final ranked = List<PlayerProfile>.from(players)..sort((a, b) => (_scores[b.id] ?? 0).compareTo(_scores[a.id] ?? 0));
+    return Column(children: [
+      const SizedBox(height: 20),
+      const Text('🏆 انتهى التحدّي!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
+      const SizedBox(height: 24),
+      Expanded(child: ListView.builder(itemCount: ranked.length, itemBuilder: (_, i) => Card(child: ListTile(leading: Text(i == 0 ? '🥇' : i == 1 ? '🥈' : '⭐', style: const TextStyle(fontSize: 26)), title: Text(ranked[i].nickname), trailing: Text('${_scores[ranked[i].id] ?? 0} نقاط'))))),
+      FilledButton.icon(onPressed: _start, icon: const Icon(Icons.replay), label: const Text('جولة جديدة')),
+    ]);
   }
 }
