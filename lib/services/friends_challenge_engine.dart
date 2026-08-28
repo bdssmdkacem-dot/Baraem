@@ -4,38 +4,50 @@ import 'adaptive_quiz_engine.dart';
 
 class ChallengeQuestion {
   const ChallengeQuestion({required this.player, required this.question});
+
   final PlayerProfile player;
   final QuizQuestion question;
 }
 
 class FriendsChallengeEngine {
   FriendsChallengeEngine({required this.players, required List<QuizQuestion> questions})
-      : _remaining = List<QuizQuestion>.from(questions);
+      : _remaining = List<QuizQuestion>.from(questions) {
+    for (final player in players) {
+      scores[player.id] = 0;
+    }
+  }
 
   final List<PlayerProfile> players;
   final List<QuizQuestion> _remaining;
   final Map<String, int> scores = {};
+  final AdaptiveQuizEngine _quizEngine = const AdaptiveQuizEngine();
   int _turn = 0;
 
   bool get isFinished => _remaining.isEmpty;
 
   ChallengeQuestion? next() {
     if (players.length < 2 || _remaining.isEmpty) return null;
+
     final player = players[_turn % players.length];
-    final selected = const AdaptiveQuizEngine().select(
+    final selected = _quizEngine.select(
       questions: _remaining,
       age: player.age,
       stars: scores[player.id] ?? 0,
       completedIds: const <String>{},
       storyId: 'friends_nuh',
     );
+
     if (selected.isEmpty) return null;
     return ChallengeQuestion(player: player, question: selected.first);
   }
 
   void answer({required PlayerProfile player, required QuizQuestion question, required bool correct}) {
     _remaining.remove(question);
-    if (correct) scores[player.id] = (scores[player.id] ?? 0) + 1;
+    if (correct) {
+      scores[player.id] = (scores[player.id] ?? 0) + 1;
+    } else {
+      scores.putIfAbsent(player.id, () => 0);
+    }
     _turn++;
   }
 }
