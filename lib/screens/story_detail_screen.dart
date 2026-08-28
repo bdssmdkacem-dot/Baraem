@@ -7,6 +7,7 @@ import '../data/stories_data.dart';
 import '../models/story_item.dart';
 import '../providers/audio_provider.dart';
 import '../providers/progress_provider.dart';
+import '../services/adaptive_quiz_engine.dart';
 import '../theme/app_colors.dart';
 import '../widgets/star_reward_overlay.dart';
 
@@ -20,6 +21,7 @@ class StoryDetailScreen extends StatefulWidget {
 
 class _StoryDetailScreenState extends State<StoryDetailScreen> {
   final PageController _pageController = PageController();
+  final AdaptiveQuizEngine _quizEngine = const AdaptiveQuizEngine();
   int _currentPage = 0;
   int _quizIndex = 0;
   int _quizCorrect = 0;
@@ -29,6 +31,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   bool _completedActivity = false;
   bool _activityStarted = false;
   List<int> _gameOrder = [];
+  List<QuizQuestion>? _adaptiveQuestions;
 
   static const List<String> _nuhSceneImages = [
     'assets/images/stories/nuh_1_01.jpg',
@@ -48,21 +51,18 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   bool get _isLastPage => _currentPage == widget.story.pages.length - 1;
   bool get _isNuhOpeningPage => widget.story.id == 'story_nuh' && _currentPage == 0;
 
-  int _ageBand(int age) {
-    if (age <= 4) return 2;
-    if (age <= 7) return 5;
-    if (age <= 10) return 8;
-    return 11;
+  List<QuizQuestion> _questionsForChild(ProgressProvider progress) {
+    _adaptiveQuestions ??= _quizEngine.select(
+      questions: widget.story.quiz,
+      age: progress.childAge,
+      stars: progress.stars,
+      completedIds: progress.completedIds,
+      storyId: widget.story.id,
+    );
+    return _adaptiveQuestions!;
   }
 
-  List<QuizQuestion> _questionsForAge(int age) {
-    final band = _ageBand(age);
-    return widget.story.quiz.where((q) => q.minAge == band).toList(growable: false);
-  }
-
-  List<StoryGame> _gamesForAge(int age) {
-    return widget.story.games.where((g) => g.minAge <= age).toList(growable: false);
-  }
+  List<StoryGame> _gamesForAge(int age) => widget.story.games.where((g) => g.minAge <= age).toList(growable: false);
 
   int _nuhSceneIndex(AudioProvider audio) {
     if (!_isNuhOpeningPage || audio.duration <= Duration.zero) return 0;
@@ -94,7 +94,8 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
 
   Future<void> _finishStory() async {
     if (_completedActivity || !_quizFinished || !_gameFinished) return;
-    final questions = _questionsForAge(context.read<ProgressProvider>().childAge);
+    final progress = context.read<ProgressProvider>();
+    final questions = _questionsForChild(progress);
     final accuracy = questions.isEmpty ? 1.0 : _quizCorrect / questions.length;
     var stars = 1;
     if (accuracy >= 0.66) stars++;
@@ -152,7 +153,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     final story = widget.story;
     final audio = context.watch<AudioProvider>();
     final progress = context.watch<ProgressProvider>();
-    final questions = _questionsForAge(progress.childAge);
+    final questions = _questionsForChild(progress);
     final games = _gamesForAge(progress.childAge);
 
     return PopScope(
@@ -178,7 +179,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                 if (!_quizFinished)
                   Expanded(child: _buildStoryPages(story, audio))
                 else
-                  Expanded(child: _buildLearningStage(progress.childAge, questions, games)),
+                  Expanded(child: _buildLearningStage(progress, questions, games)),
                 if (!_quizFinished)
                   Padding(
                     padding: const EdgeInsets.all(20),
@@ -237,9 +238,9 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     );
   }
 
-  Widget _buildLearningStage(int age, List<QuizQuestion> questions, List<StoryGame> games) {
+  Widget _buildLearningStage(ProgressProvider progress, List<QuizQuestion> questions, List<StoryGame> games) {
     if (!_quizFinished) return const SizedBox.shrink();
-    if (_quizIndex < questions.length) return _buildQuizQuestion(questions[_quizIndex], age, questions.length);
+    if (_quizIndex < questions.length) return _buildQuizQuestion(questions[_quizIndex], progress.childGender, questions.length);
     if (!_gameFinished && games.isNotEmpty) return _buildGame(games.first);
     if (!_gameFinished) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -247,10 +248,10 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       });
       return const Center(child: CircularProgressIndicator());
     }
-    return _buildCompletion(age);
+    return _buildCompletion(progress.childAge, progress.childGender);
   }
 
-  Widget _buildQuizQuestion(QuizQuestion q, int age, int total) {
+  Widget _buildQuizQuestion(QuizQuestion q, String? gender, int total) {
     final isLast = _quizIndex == total - 1;
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -258,6 +259,8 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
         Text('🧠 سؤال ${_quizIndex + 1} من $total', style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: 18),
         Text(q.question, textAlign: TextAlign.center, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+        if (q.audioAsset != null)
+          IconButton(onPressed: () => context.read<AudioProvider>().playAsset(q.audioAsset!), icon: const Icon(Icons.volume_up_rounded)),
         const SizedBox(height: 20),
         ...List.generate(q.options.length, (i) {
           final selected = _selectedQuizOption == i;
@@ -265,7 +268,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: OutlinedButton(
-              onPressed: _selectedQuizOption == null ? () => _answerQuiz(q, i, isLast) : null,
+              onPressed: _selectedQuizOption == null ? () => _answerQuiz(q, i) : null,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
                 backgroundColor: selected ? (correct ? AppColors.success : AppColors.primaryCoral.withValues(alpha: 0.18)) : null,
@@ -277,7 +280,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
         if (_selectedQuizOption != null) ...[
           const SizedBox(height: 12),
           Text(
-            _selectedQuizOption == q.correctIndex ? 'أحسنت! ⭐' : 'حاول مرة أخرى 🌱',
+            _quizEngine.encouragement(gender, _selectedQuizOption == q.correctIndex),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
           ),
@@ -289,14 +292,14 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
           ElevatedButton(
             onPressed: () => _advanceQuiz(total),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryCoral),
-            child: Text(isLast ? 'إلى اللعبة 🎮' : 'السؤال التالي'),
+            child: Text(isLast ? 'إلى اللعبة 🎮' : _quizEngine.nextLabel(gender)),
           ),
         ],
       ],
     );
   }
 
-  void _answerQuiz(QuizQuestion q, int index, bool isLast) {
+  void _answerQuiz(QuizQuestion q, int index) {
     setState(() {
       _selectedQuizOption = index;
       if (index == q.correctIndex) _quizCorrect++;
@@ -386,7 +389,10 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     }
   }
 
-  Widget _buildCompletion(int age) {
+  Widget _buildCompletion(int age, String? gender) {
+    final message = gender == 'female'
+        ? (age <= 7 ? 'رائعة يا بطلة! استمري في التعلّم.' : 'رائع! استمري في التعلّم وفعل الخير.')
+        : (age <= 7 ? 'رائع يا بطل! استمر في التعلّم.' : 'رائع! استمر في التعلّم وفعل الخير.');
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -395,7 +401,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
           const SizedBox(height: 12),
           const Text('أكملت رحلة قصة نوح!', textAlign: TextAlign.center, style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900)),
           const SizedBox(height: 12),
-          Text('ممتاز يا بطل! استمر في التعلّم وفعل الخير.', textAlign: TextAlign.center, style: TextStyle(fontSize: age <= 7 ? 20 : 18)),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(fontSize: age <= 7 ? 20 : 18)),
         ]),
       ),
     );
