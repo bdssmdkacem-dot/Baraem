@@ -45,11 +45,77 @@ Future<void> main() async {
     }
   });
 }
-Future<void> _loadAppState(AppStateProvider provider) async { try { await provider.load(); } catch (e, s) { if (kDebugMode) debugPrint('AppState load failed: $e\n$s'); } }
-Future<void> _loadProgress(ProgressProvider provider) async { try { await provider.load(); } catch (e, s) { if (kDebugMode) debugPrint('Progress load failed: $e\n$s'); } }
-Future<void> _initBilling(PurchaseProvider provider) async { try { await provider.init(); } catch (e, s) { if (kDebugMode) debugPrint('Billing startup failed: $e\n$s'); } }
+
+Future<void> _loadAppState(AppStateProvider provider) async {
+  try {
+    await provider.load();
+  } catch (e, s) {
+    if (kDebugMode) debugPrint('AppState load failed: $e\n$s');
+  }
+}
+
+Future<void> _loadProgress(ProgressProvider provider) async {
+  try {
+    await provider.load();
+  } catch (e, s) {
+    if (kDebugMode) debugPrint('Progress load failed: $e\n$s');
+  }
+}
+
+Future<void> _initBilling(PurchaseProvider provider) async {
+  try {
+    await provider.init();
+  } catch (e, s) {
+    if (kDebugMode) debugPrint('Billing startup failed: $e\n$s');
+  }
+}
+
 class _StartupFailureApp extends StatelessWidget {
   const _StartupFailureApp({required this.error, required this.stackTrace});
-  final Object error; final StackTrace stackTrace;
-  @override Widget build(BuildContext context) => MaterialApp(debugShowCheckedModeBanner: false, home: Scaffold(body: SafeArea(child: Directionality(textDirection: TextDirection.rtl, child: Padding(padding: const EdgeInsets.all(24), child: Center(child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.error_outline_rounded, size: 64), const SizedBox(height: 16), const Text('تعذر تشغيل براعم', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)), const SizedBox(height: 12), const Text('حدث خطأ أثناء بدء التطبيق. أرسل صورة هذه الشاشة للتشخيص.', textAlign: TextAlign.center), const SizedBox(height: 20), SelectableText(error.toString(), textAlign: TextAlign.center), if (kDebugMode) ...[const SizedBox(height: 20), SelectableText(stackTrace.toString(), style: TextStyle(fontSize: 11))]]))))))));
+
+  final Object error;
+  final StackTrace stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: SafeArea(
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline_rounded, size: 64),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'تعذر تشغيل براعم',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'حدث خطأ أثناء بدء التطبيق. أرسل صورة هذه الشاشة للتشخيص.',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      SelectableText(error.toString(), textAlign: TextAlign.center),
+                      if (kDebugMode) ...[
+                        const SizedBox(height: 20),
+                        SelectableText(stackTrace.toString(), style: const TextStyle(fontSize: 11)),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
