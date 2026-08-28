@@ -73,7 +73,6 @@ class PlayersProvider extends ChangeNotifier {
       final score = scores[player.id] ?? 0;
       final won = score == best && best > 0;
       players[i] = player.copyWith(
-        stars: player.stars + score,
         challengesPlayed: player.challengesPlayed + 1,
         challengesWon: player.challengesWon + (won ? 1 : 0),
       );
