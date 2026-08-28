@@ -29,13 +29,22 @@ class FriendsChallengeEngine {
     if (players.isEmpty || _remaining.isEmpty) return null;
 
     final player = players[_turn % players.length];
-    final selected = _quizEngine.select(
+    var selected = _quizEngine.select(
       questions: _remaining,
       age: player.age,
       stars: scores[player.id] ?? 0,
       completedIds: const <String>{},
       storyId: 'friends_nuh',
     );
+
+    // A shared-phone challenge must keep rotating even when the remaining
+    // pool has no exact age-band match. Use the nearest available question
+    // rather than ending the whole session for that player.
+    if (selected.isEmpty) {
+      final sorted = List<QuizQuestion>.from(_remaining)
+        ..sort((a, b) => (a.minAge - player.age).abs().compareTo((b.minAge - player.age).abs()));
+      selected = sorted.take(1).toList(growable: false);
+    }
 
     if (selected.isEmpty) return null;
     return ChallengeQuestion(player: player, question: selected.first);
