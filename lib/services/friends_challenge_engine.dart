@@ -26,7 +26,7 @@ class FriendsChallengeEngine {
   bool get isFinished => _remaining.isEmpty;
 
   ChallengeQuestion? next() {
-    if (players.length < 2 || _remaining.isEmpty) return null;
+    if (players.isEmpty || _remaining.isEmpty) return null;
 
     final player = players[_turn % players.length];
     final selected = _quizEngine.select(
