@@ -9,7 +9,8 @@ class ChallengeQuestion {
 }
 
 class FriendsChallengeEngine {
-  FriendsChallengeEngine({required this.players, required this.questions}) : _remaining = List<QuizQuestion>.from(questions);
+  FriendsChallengeEngine({required this.players, required this.questions})
+      : _remaining = List<QuizQuestion>.from(questions);
 
   final List<PlayerProfile> players;
   final List<QuizQuestion> _remaining;
@@ -21,14 +22,26 @@ class FriendsChallengeEngine {
   ChallengeQuestion? next() {
     if (players.length < 2 || _remaining.isEmpty) return null;
     final player = players[_turn % players.length];
-    final adaptive = AdaptiveQuizEngine.selectQuestions(age: player.age, gender: player.gender, stars: scores[player.id] ?? 0, completedCount: 0, questions: _remaining);
-    if (adaptive.isEmpty) return null;
-    return ChallengeQuestion(player: player, question: adaptive.first);
+    final selected = const AdaptiveQuizEngine().select(
+      questions: _remaining,
+      age: player.age,
+      stars: scores[player.id] ?? 0,
+      completedIds: const <String>{},
+      storyId: 'friends_nuh',
+    );
+    if (selected.isEmpty) return null;
+    return ChallengeQuestion(player: player, question: selected.first);
   }
 
-  void answer({required PlayerProfile player, required QuizQuestion question, required bool correct}) {
+  void answer({
+    required PlayerProfile player,
+    required QuizQuestion question,
+    required bool correct,
+  }) {
     _remaining.remove(question);
-    if (correct) scores[player.id] = (scores[player.id] ?? 0) + 1;
+    if (correct) {
+      scores[player.id] = (scores[player.id] ?? 0) + 1;
+    }
     _turn++;
   }
 }
