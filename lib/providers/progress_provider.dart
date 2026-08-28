@@ -47,7 +47,9 @@ class ProgressProvider extends ChangeNotifier {
       try {
         final decoded = jsonDecode(completedRaw);
         completedIds = decoded is List ? decoded.whereType<String>().toSet() : {};
-      } catch (_) { completedIds = {}; }
+      } catch (_) {
+        completedIds = {};
+      }
     }
     _loadTodayCompletions();
     _loaded = true;
@@ -68,7 +70,9 @@ class ProgressProvider extends ChangeNotifier {
     try {
       final decoded = jsonDecode(raw);
       completedTodayIds = decoded is List ? decoded.whereType<String>().toSet() : {};
-    } catch (_) { completedTodayIds = {}; }
+    } catch (_) {
+      completedTodayIds = {};
+    }
   }
 
   String _dayKey(DateTime date) => '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
@@ -76,12 +80,17 @@ class ProgressProvider extends ChangeNotifier {
   void _updateStreakOnOpen() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    if (lastActiveDay == null) streakDays = 1;
-    else {
+    if (lastActiveDay == null) {
+      streakDays = 1;
+    } else {
       final last = DateTime(lastActiveDay!.year, lastActiveDay!.month, lastActiveDay!.day);
       final diff = today.difference(last).inDays;
-      if (diff == 1) streakDays += 1;
-      if (diff > 1) streakDays = 1;
+      if (diff == 1) {
+        streakDays += 1;
+      }
+      if (diff > 1) {
+        streakDays = 1;
+      }
     }
     lastActiveDay = today;
     _prefs.setInt(_kStreak, streakDays);
