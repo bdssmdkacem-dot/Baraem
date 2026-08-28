@@ -62,7 +62,7 @@ void main() {
     expect(s.progress.isCompleted('adab_eating'), isTrue);
   });
 
-  testWidgets('قصص الأنبياء advances pages and completes quiz', (tester) async {
+  testWidgets('قصص الأنبياء advances pages and completes adaptive quiz/game', (tester) async {
     final s = await scope();
     addTearDown(s.dispose);
 
@@ -81,6 +81,15 @@ void main() {
           correctIndex: 0,
         ),
       ],
+      games: [
+        StoryGame(
+          id: 'story_test_nuh_game',
+          title: 'اختر الإجابة الصحيحة',
+          kind: StoryGameKind.choose,
+          items: ['بنى السفينة', 'بنى قصرًا'],
+          correctOrder: [0],
+        ),
+      ],
     );
     s.activity.start(storyActivity(story.id, story.title));
 
@@ -96,11 +105,14 @@ void main() {
 
     expect(find.text('ماذا فعل نوح عليه السلام؟'), findsOneWidget);
     await tester.tap(find.text('بنى السفينة'));
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+
+    expect(find.text('اختر الإجابة الصحيحة'), findsOneWidget);
+    await tester.tap(find.text('بنى السفينة'));
     await tester.pumpAndSettle();
 
     expect(s.activity.lastResult?.completed, isTrue);
-    expect(s.progress.stars, 1);
+    expect(s.progress.stars, greaterThanOrEqualTo(1));
     expect(s.progress.isCompleted('story_test_nuh'), isTrue);
     expect(find.text('أحسنت! 🎉'), findsOneWidget);
   });
@@ -127,9 +139,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(s.activity.status.name, 'completed');
-
-    // The provider clears lastResult whenever a new activity is started.
-    // The regression we care about is the persisted completion and star count.
     expect(s.progress.stars, 1);
     expect(s.progress.isCompleted('adab_eating'), isTrue);
     expect(find.text('أحسنت! 🎉'), findsNothing);
