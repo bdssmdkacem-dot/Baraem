@@ -10,7 +10,6 @@ class ActivityProvider extends ChangeNotifier {
       : _engine = ActivityEngine(progress: progress, character: character);
 
   final ActivityEngine _engine;
-
   ActivityStatus get status => _engine.status;
   ActivityResult? _lastResult;
   ActivityResult? get lastResult => _lastResult;
@@ -21,8 +20,11 @@ class ActivityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<ActivityResult> complete(ActivityDefinition activity) async {
-    final result = await _engine.complete(activity);
+  Future<ActivityResult> complete(
+    ActivityDefinition activity, {
+    int starsAwarded = 1,
+  }) async {
+    final result = await _engine.complete(activity, starsAwarded: starsAwarded);
     _lastResult = result;
     notifyListeners();
     return result;
