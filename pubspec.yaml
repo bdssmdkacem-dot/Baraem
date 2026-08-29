@@ -17,19 +17,10 @@ dependencies:
   audioplayers: ^6.0.0
   confetti: ^0.7.0
   in_app_purchase: ^3.2.0
-  # google_mobile_ads retiré : jamais utilisé côté Dart (pas de MobileAds.initialize,
-  # pas de BannerAd/AdWidget), mais le plugin natif peut planter au démarrage sans
-  # meta-data com.google.android.gms.ads.APPLICATION_ID dans AndroidManifest.xml.
-  # Risque gratuit pour zéro bénéfice actuel -> à réintroduire seulement quand les
-  # pubs seront réellement implémentées, avec le vrai App ID configuré.
-  # flutter_svg retiré : toutes les illustrations sont maintenant des .jpg
-  # (Image.asset), plus aucun SvgPicture.asset dans le code.
-  # google_fonts retiré : jamais appelé (aucun GoogleFonts.xxx dans le code) ;
-  # en plus de l'usage nul, le package télécharge la police à la volée si elle
-  # n'est pas embarquée, ce qui échouerait silencieusement sans permission
-  # INTERNET — encore une dépendance dormante à réintroduire seulement avec
-  # une vraie police embarquée dans assets/fonts/.
-  # lottie retiré : jamais appelé (aucun fichier .json Lottie dans le projet).
+  # google_mobile_ads retiré : jamais utilisé côté Dart.
+  # flutter_svg retiré : les illustrations sont maintenant des assets raster.
+  # google_fonts retiré : aucune police distante n'est nécessaire.
+  # lottie retiré : aucun fichier Lottie n'est utilisé.
 
 dev_dependencies:
   flutter_test:
@@ -51,9 +42,57 @@ flutter:
     - assets/images/
     - assets/images/mascot/
     - assets/images/stories/
+    - assets/images/stories/adam/
+    - assets/images/stories/idris/
     - assets/images/stories/nuh/
+    - assets/images/stories/hud/
+    - assets/images/stories/salih/
+    - assets/images/stories/ibrahim/
+    - assets/images/stories/lut/
+    - assets/images/stories/ismail/
+    - assets/images/stories/ishaq/
+    - assets/images/stories/yaqub/
+    - assets/images/stories/yusuf/
+    - assets/images/stories/ayyub/
+    - assets/images/stories/shuayb/
+    - assets/images/stories/musa/
+    - assets/images/stories/harun/
+    - assets/images/stories/dhul_kifl/
+    - assets/images/stories/dawud/
+    - assets/images/stories/sulayman/
+    - assets/images/stories/ilyas/
+    - assets/images/stories/al_yasa/
+    - assets/images/stories/yunus/
+    - assets/images/stories/zakariya/
+    - assets/images/stories/yahya/
+    - assets/images/stories/isa/
+    - assets/images/stories/muhammad/
     - assets/images/adab/
     - assets/images/home/
     - assets/audio/adkar/
     - assets/audio/stories/
+    - assets/audio/stories/adam/
+    - assets/audio/stories/idris/
     - assets/audio/stories/nuh/
+    - assets/audio/stories/hud/
+    - assets/audio/stories/salih/
+    - assets/audio/stories/ibrahim/
+    - assets/audio/stories/lut/
+    - assets/audio/stories/ismail/
+    - assets/audio/stories/ishaq/
+    - assets/audio/stories/yaqub/
+    - assets/audio/stories/yusuf/
+    - assets/audio/stories/ayyub/
+    - assets/audio/stories/shuayb/
+    - assets/audio/stories/musa/
+    - assets/audio/stories/harun/
+    - assets/audio/stories/dhul_kifl/
+    - assets/audio/stories/dawud/
+    - assets/audio/stories/sulayman/
+    - assets/audio/stories/ilyas/
+    - assets/audio/stories/al_yasa/
+    - assets/audio/stories/yunus/
+    - assets/audio/stories/zakariya/
+    - assets/audio/stories/yahya/
+    - assets/audio/stories/isa/
+    - assets/audio/stories/muhammad/
