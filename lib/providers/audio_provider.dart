@@ -39,7 +39,11 @@ class AudioProvider extends ChangeNotifier {
 
   String? get currentAsset => _currentAsset;
 
-  /// Existing Noah aliases are resolved to the agreed narrator -> Quran -> narrator sequence.
+  /// Plays a normal asset or resolves a story alias to narrator -> Quran -> narrator.
+  ///
+  /// Future prophet stories use this convention:
+  /// `audio/stories/<slug>/<slug>_01.mp3`
+  /// -> `<slug>_1_a.mp3` -> `<slug>_quran_01.mp3` -> `<slug>_1_b.mp3`.
   Future<void> playAsset(String assetPath) async {
     if (isMuted || assetPath.trim().isEmpty) return;
 
@@ -50,6 +54,16 @@ class AudioProvider extends ChangeNotifier {
         return;
       }
       await playSequence(noahSequence, logicalAsset: assetPath);
+      return;
+    }
+
+    final storySequence = _storySequenceForAlias(assetPath);
+    if (storySequence != null) {
+      if (_currentAsset == assetPath && isPlaying) {
+        await stop();
+        return;
+      }
+      await playSequence(storySequence, logicalAsset: assetPath);
       return;
     }
 
@@ -79,7 +93,30 @@ class AudioProvider extends ChangeNotifier {
     }
   }
 
-  /// Plays segmented narration continuously, waiting for each file to finish.
+  /// Resolves nested prophet-story aliases without requiring a new mapping per prophet.
+  /// Example:
+  /// `audio/stories/musa/musa_01.mp3`
+  /// becomes `musa_1_a.mp3 -> musa_quran_01.mp3 -> musa_1_b.mp3`.
+  List<String>? _storySequenceForAlias(String assetPath) {
+    final match = RegExp(r'^audio/stories/([^/]+)/([^/]+)_(\d{1,2})\.mp3$').firstMatch(assetPath);
+    if (match == null) return null;
+
+    final slug = match.group(1)!;
+    final fileSlug = match.group(2)!;
+    final scene = int.parse(match.group(3)!);
+    if (slug != fileSlug || scene < 1 || scene > 99) return null;
+
+    final sceneNumber = scene.toString();
+    final paddedScene = scene.toString().padLeft(2, '0');
+    final base = 'audio/stories/$slug/';
+    return <String>[
+      '${base}${slug}_${sceneNumber}_a.mp3',
+      '${base}${slug}_quran_$paddedScene.mp3',
+      '${base}${slug}_${sceneNumber}_b.mp3',
+    ];
+  }
+
+  /// Existing Noah aliases are resolved to the agreed narrator -> Quran -> narrator sequence.
   Future<void> playSequence(List<String> assets, {String? logicalAsset}) async {
     final sequence = assets.where((asset) => asset.trim().isNotEmpty).toList(growable: false);
     if (sequence.isEmpty || isMuted) return;
