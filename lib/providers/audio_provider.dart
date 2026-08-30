@@ -110,9 +110,9 @@ class AudioProvider extends ChangeNotifier {
     final paddedScene = scene.toString().padLeft(2, '0');
     final base = 'audio/stories/$slug/';
     return <String>[
-      '${base}${slug}_${sceneNumber}_a.mp3',
-      '${base}${slug}_quran_$paddedScene.mp3',
-      '${base}${slug}_${sceneNumber}_b.mp3',
+      '$base${slug}_${sceneNumber}_a.mp3',
+      '$base${slug}_quran_$paddedScene.mp3',
+      '$base${slug}_${sceneNumber}_b.mp3',
     ];
   }
 
@@ -165,44 +165,44 @@ class AudioProvider extends ChangeNotifier {
     const base = 'audio/stories/nuh/';
     const aliases = <String, List<String>>{
       'audio/stories/nuh_01.mp3': [
-        '${base}nuh_1_a.mp3',
-        '${base}nuh_quran_01.mp3',
-        '${base}nuh_1_b.mp3',
+        '$base' 'nuh_1_a.mp3',
+        '$base' 'nuh_quran_01.mp3',
+        '$base' 'nuh_1_b.mp3',
       ],
       'audio/stories/nuh_02.mp3': [
-        '${base}nuh_2_a.mp3',
-        '${base}nuh_quran_02.mp3',
-        '${base}nuh_2_b.mp3',
+        '$base' 'nuh_2_a.mp3',
+        '$base' 'nuh_quran_02.mp3',
+        '$base' 'nuh_2_b.mp3',
       ],
       'audio/stories/nuh_03.mp3': [
-        '${base}nuh_3_a.mp3',
-        '${base}nuh_quran_03.mp3',
-        '${base}nuh_3_b.mp3',
+        '$base' 'nuh_3_a.mp3',
+        '$base' 'nuh_quran_03.mp3',
+        '$base' 'nuh_3_b.mp3',
       ],
       'audio/stories/nuh_04.mp3': [
-        '${base}nuh_4_a.mp3',
-        '${base}nuh_quran_04.mp3',
-        '${base}nuh_4_b.mp3',
+        '$base' 'nuh_4_a.mp3',
+        '$base' 'nuh_quran_04.mp3',
+        '$base' 'nuh_4_b.mp3',
       ],
       'audio/stories/nuh_05.mp3': [
-        '${base}nuh_5_a.mp3',
-        '${base}nuh_quran_05.mp3',
-        '${base}nuh_5_b.mp3',
+        '$base' 'nuh_5_a.mp3',
+        '$base' 'nuh_quran_05.mp3',
+        '$base' 'nuh_5_b.mp3',
       ],
       'audio/stories/nuh_06.mp3': [
-        '${base}nuh_6_a.mp3',
-        '${base}nuh_quran_06.mp3',
-        '${base}nuh_6_b.mp3',
+        '$base' 'nuh_6_a.mp3',
+        '$base' 'nuh_quran_06.mp3',
+        '$base' 'nuh_6_b.mp3',
       ],
       'audio/stories/nuh_07.mp3': [
-        '${base}nuh_7_a.mp3',
-        '${base}nuh_quran_07.mp3',
-        '${base}nuh_7_b.mp3',
+        '$base' 'nuh_7_a.mp3',
+        '$base' 'nuh_quran_07.mp3',
+        '$base' 'nuh_7_b.mp3',
       ],
       'audio/stories/nuh_08.mp3': [
-        '${base}nuh_8_a.mp3',
-        '${base}nuh_quran_08.mp3',
-        '${base}nuh_8_b.mp3',
+        '$base' 'nuh_8_a.mp3',
+        '$base' 'nuh_quran_08.mp3',
+        '$base' 'nuh_8_b.mp3',
       ],
     };
     return aliases[assetPath];
