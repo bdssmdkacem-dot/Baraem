@@ -127,6 +127,44 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     );
   }
 
+  Widget _quranPanel(StoryPage page, AudioProvider audio) {
+    final quranAsset = page.quranAsset;
+    if (quranAsset == null || page.quranText == null || audio.currentSequenceAsset != quranAsset) {
+      return const SizedBox.shrink();
+    }
+
+    final reference = [
+      if (page.quranJuz != null) 'الجزء ${page.quranJuz}',
+      if (page.quranSurah != null) 'سورة ${page.quranSurah}',
+      if (page.quranAyah != null) 'الآية ${page.quranAyah}',
+    ].join(' • ');
+
+    return Card(
+      margin: const EdgeInsets.only(top: 12),
+      elevation: 0,
+      color: AppColors.surfaceAlt,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const Text('📖 القرآن الكريم', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),
+            if (reference.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(reference, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),
+            ],
+            const SizedBox(height: 12),
+            Text(
+              page.quranText!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 19, height: 1.8, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final story = widget.story;
@@ -194,6 +232,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                 const SizedBox(height: 16),
                 Text(page.text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, height: 1.5)),
               ],
+              _quranPanel(page, audio),
               if (page.audioAsset != null) ...[
                 const SizedBox(height: 12),
                 IconButton.filled(
