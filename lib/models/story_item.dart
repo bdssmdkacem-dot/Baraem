@@ -6,8 +6,22 @@ class StoryPage {
   final String text;
   final String? imageAsset;
   final String? audioAsset;
+  final String? quranAsset;
+  final String? quranText;
+  final String? quranSurah;
+  final int? quranAyah;
+  final int? quranJuz;
 
-  const StoryPage({required this.text, this.imageAsset, this.audioAsset});
+  const StoryPage({
+    required this.text,
+    this.imageAsset,
+    this.audioAsset,
+    this.quranAsset,
+    this.quranText,
+    this.quranSurah,
+    this.quranAyah,
+    this.quranJuz,
+  });
 }
 
 class QuizQuestion {
